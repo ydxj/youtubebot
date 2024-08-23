@@ -10,12 +10,16 @@ Sends a request to Gmail's web interface to check if a given email address exist
 
 To install :
   *Kali linux && Termux* : git clone https://github.com/ydxj/youtubebot/
+
+  
   cd youtubebot
+
+  
   php bot.php
 
 
 
 ***need a token bot and id(Telegram).
+
+
 Enjoy
-License
-This project is licensed under the MIT License - see the LICENSE file for details.
