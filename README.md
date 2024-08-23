@@ -5,8 +5,9 @@ Instagram Account Checker is a PHP tool designed to verify the validity of Insta
 *Email Availability Check:*
   *Checks whether the email address associated with the account is valid and available.*
 
-Sends a request to Gmail's web interface to check if a given email address exists. This method is specific to Gmail accounts.
-Yahoo Account Check:
+Sends a request to Gmail's web interface to check if a given email address exists. This method is specific to Gmail accounts.Yahoo Account Check....
+
+
 To install :
   *Kali linux && Termux* : git clone https://github.com/ydxj/youtubebot/
   cd youtubebot
