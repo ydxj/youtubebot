@@ -11,19 +11,18 @@ Instagram Account Checker is a PHP tool designed to verify the validity of Insta
 
 
 <h4>To install :</h4>
-  *Kali linux && Termux* :
-
+  <ul>Kali linux && Termux</ul> :
   
-  `git clone https://github.com/ydxj/youtubebot/`
+  1. **Clone the repository:**
+      ```bash
+      git clone https://github.com/ydxj/youtubebot/
 
-  
-  `cd youtubebot`
-
-  
- ` php bot.php`
-
-
-
+2. **Navigate to the project directory:
+    ```bash
+   cd youtubebot
+3. **Runing Tool:**
+   ```bash
+   php bot.php
 
 - need a token bot and id(Telegram).
 
