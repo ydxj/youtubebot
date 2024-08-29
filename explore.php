@@ -13,10 +13,10 @@ if($a == 'new'){
 $from = 'Explore';
 $mid = bot('sendMessage',[
 		'chat_id'=>$id,
-		'text'=>"ＣＯＬＬＥＣＴＩＯＮ Ｆ ＲＯＭ * ~ [ _ $from _ ]\n\n*𝐒𝐓𝐀𝐓𝐔𝐒  * ~> _ 𝐖𝐎𝐑𝐊𝐈𝐍𝐆  _\n*𝐔𝐒𝐄𝐑𝐒 * ~> _ ".count(explode("\n", file_get_contents($file)))."_",
+		'text'=>"*Collection From* ~ [ _ $from _ ]\n\n*Status* ~> _ Working _\n*Users* ~> _ ".count(explode("\n", file_get_contents($file)))."_",
 	'parse_mode'=>'markdown',
 	'reply_markup'=>json_encode(['inline_keyboard'=>[
-			[['text'=>'𝐒𝐓𝐎𝐏 .','callback_data'=>'stopgr']]
+			[['text'=>'Stop.','callback_data'=>'stopgr']]
 		]])
 	])->result->message_id;
 $ids = [];
@@ -86,10 +86,10 @@ foreach($posts as $post){
         	bot('editmessageText',[
         		'chat_id'=>$id,
         		'message_id'=>$mid,
-        		'text'=>"*𝐂𝐎𝐋𝐋𝐄𝐂𝐓𝐈𝐎𝐍 𝐅𝐑𝐎𝐌 * ~ [ _ $from _ ]\n\n*𝐒𝐓𝐀𝐓𝐔𝐒  * ~> _ 𝐖𝐎𝐑𝐊𝐈𝐍𝐆  _\n*𝐔𝐒𝐄𝐑𝐒 * ~> _ ".count(explode("\n", file_get_contents($file)))."_",
+        		'text'=>"*Collection From* ~ [ _ $from _ ]\n\n*Status* ~> _ Working _\n*Users* ~> _ ".count(explode("\n", file_get_contents($file)))."_",
 	'parse_mode'=>'markdown',
 	'reply_markup'=>json_encode(['inline_keyboard'=>[
-			[['text'=>'𝐒𝐓𝐎𝐏 .','callback_data'=>'stopgr']]
+			[['text'=>'Stop.','callback_data'=>'stopgr']]
 		]])
         	]);
         	$e += 43;
@@ -105,6 +105,6 @@ foreach($posts as $post){
 bot('sendMessage',[
 		'chat_id'=>$id,
 		'reply_to_message_id'=>$mid,
-		'text'=>"*𝗗𝗢𝗡𝗘 𝗖𝗢𝗟𝗟𝗘𝗖𝗧𝗜𝗢𝗡 . * \n 𝐀𝐋𝐋  : ".count(explode("\n", file_get_contents($file))),
+		'text'=>"*Done Collection . * \n All : ".count(explode("\n", file_get_contents($file))),
 		'parse_mode'=>'markdown',
 ]);

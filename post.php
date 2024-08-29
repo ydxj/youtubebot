@@ -15,3 +15,4 @@ $get = file_get_contents('https://www.instagram.com/p/CB5RaX3l6Gk/');
 echo $get;
 // preg_match('/"id"\:"(.*?)"/i',$get,$m);
 // print_r($m);
+?>

@@ -13,19 +13,16 @@ function status($for){
     
 }
 function checkMail($mail){
-$mail = strtolower($mail);
         if(mb_substr($mail, -10) === '@gmail.com'){
             return checkGmail($mail);
-        } elseif(preg_match('/(hotmail|outlook)/', $mail)){
+        } elseif(preg_match('/(live|hotmail|outlook)\.(.*)/', $mail)){
             return checkHotmail(newURL(),$mail);
-        } elseif(strpos($mail, 'yahoo.com')){
+        } elseif(strpos($mail, 'yahoo')){
             return checkYahoo($mail);
         } elseif(preg_match('/(mail|bk|yandex|inbox|list)\.(ru)/i', $mail)){
             return checkRU($mail);
-        } elseif(strpos($mail, 'aol.com')){
-            	return checkAol($mail);
         } else {
-            return false;
+            return true;
             
         }
 }
@@ -84,7 +81,7 @@ $h = explode("\n", 'Host: i.instagram.com
 Connection: keep-alive
 X-IG-Connection-Type: WIFI
 X-IG-Capabilities: 3Ro=
-Accept-Language: en-US
+Accept-Language: ar-AE
 Cookie: '.$cookies.'
 User-Agent: '.$useragent.'
 Accept-Encoding: gzip, deflate, sdch');
@@ -106,13 +103,6 @@ if(isset($user->public_email)){
 } else {
   $ret = false;
 }
-} elseif($search->message){
-    if($search->message == 'Please wait a few minutes before you try again.' or $search->message == 'challenge_required'){
-        $ret = 'checkpoint';
-        usleep (888888);
-    } else {
-        echo json_encode($search);    
-    }
 } else {
     echo json_encode($search);
     $ret = false;
@@ -163,166 +153,40 @@ function checkRU($mail){
         return false;
     }
 }
-function checkAol($mail){
-    $mail = trim($mail);
-    if(strpos($mail, ' ') or strpos($mail, '+')){
-        return false;
-    }
-$user = $mail;
-@mkdir("Info2");
-$c = curl_init("https://login.aol.com/"); 
-curl_setopt($c, CURLOPT_FOLLOWLOCATION, true); 
-curl_setopt($c, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"); 
-curl_setopt($c, CURLOPT_REFERER, 'https://www.google.com'); 
-curl_setopt($c, CURLOPT_ENCODING, 'gzip, deflate, br');  
-curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);  
-curl_setopt($c, CURLOPT_HEADER, true); 
-curl_setopt($c, CURLOPT_COOKIEJAR, "Info2/cookie.txt"); 
-curl_setopt($c, CURLOPT_COOKIEFILE, "Info2/cookie.txt"); 
-$response = curl_exec($c); 
-$httpcode = curl_getinfo($c); 
-$header = substr($response, 0, curl_getinfo($c, CURLINFO_HEADER_SIZE)); 
-$body = substr($response, curl_getinfo($c, CURLINFO_HEADER_SIZE)); 
-preg_match_all('#name="crumb" value="(.*?)" />#', $response, $crumb); 
-preg_match_all('#name="acrumb" value="(.*?)" />#', $response, $acrumb); 
-preg_match_all('#name="config" value="(.*?)" />#', $response, $config); 
-preg_match_all('#name="sessionIndex" value="(.*?)" />#', $response, $sesindex); 
-$data['status'] = "ok"; 
-$data['crumb'] = isset($crumb[1][0]) ? $crumb[1][0] : ""; 
-$data['acrumb'] = $acrumb[1][0]; 
-$data['config'] = isset($config[1][0]) ? $config[1][0] : ""; 
-$data['sesindex'] = $sesindex[1][0]; 
-$crumb = trim($data['crumb']); 
-$acrumb = trim($data['acrumb']); 
-$config = trim($data['config']); 
-$sesindex = trim($data['sesindex']); 
-$header = array(); 
-$header[] = "Host: login.aol.com"; 
-$header[] = "User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:56.0) Gecko/20100101 Firefox/56.0"; 
-$header[] = "Accept: */*"; 
-$header[] = "Accept-Language: en-US,en;q=0.5"; 
-$header[] = "content-type: application/x-www-form-urlencoded; charset=UTF-8"; 
-$header[] = "X-Requested-With: XMLHttpRequest"; 
-$header[] = "Referer: https://login.aol.com/"; 
-$header[] = "Connection: keep-alive"; 
-$data = "acrumb=$acrumb&sessionIndex=$sesindex&username=".urlencode($user)."&passwd=&signin=Next"; 
-$c = curl_init("https://login.aol.com/"); 
-curl_setopt($c, CURLOPT_FOLLOWLOCATION, true); 
-curl_setopt($c, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36"); 
-curl_setopt($c, CURLOPT_REFERER, 'https://login.aol.com/'); 
-curl_setopt($c, CURLOPT_ENCODING, 'gzip, deflate, br');  
-curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);  
-curl_setopt($c, CURLOPT_HTTPHEADER, $header); 
-curl_setopt($c, CURLOPT_COOKIEJAR, "Info2/cookie.txt"); 
-curl_setopt($c, CURLOPT_COOKIEFILE, "Info2/cookie.txt"); 
-curl_setopt($c, CURLOPT_POSTFIELDS, $data); 
-curl_setopt($c, CURLOPT_POST, 1); 
-$b = curl_exec($c); 
-if(strstr($b,"INVALID_USERNAME")){
-echo "ues";
-return true;
-}else{
-echo "no";
-return false;
-}
-}
 function checkYahoo($mail){
     $mail = trim($mail);
     if(strpos($mail, ' ') or strpos($mail, '+')){
         return false;
     }
-$user = $mail;
-@mkdir("Info");
-$c = curl_init("https://login.yahoo.com/"); 
-curl_setopt($c, CURLOPT_FOLLOWLOCATION, true); 
-curl_setopt($c, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36"); 
-curl_setopt($c, CURLOPT_REFERER, 'https://www.google.com'); 
-curl_setopt($c, CURLOPT_ENCODING, 'gzip, deflate, br');  
-curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);  
-curl_setopt($c, CURLOPT_HEADER, true); 
-curl_setopt($c, CURLOPT_COOKIEJAR, "Info/cookie.txt"); 
-curl_setopt($c, CURLOPT_COOKIEFILE, "Info/cookie.txt"); 
-$response = curl_exec($c); 
-$httpcode = curl_getinfo($c); 
-$header = substr($response, 0, curl_getinfo($c, CURLINFO_HEADER_SIZE)); 
-$body = substr($response, curl_getinfo($c, CURLINFO_HEADER_SIZE)); 
-preg_match_all('#name="crumb" value="(.*?)" />#', $response, $crumb); 
-preg_match_all('#name="acrumb" value="(.*?)" />#', $response, $acrumb); 
-preg_match_all('#name="config" value="(.*?)" />#', $response, $config); 
-preg_match_all('#name="sessionIndex" value="(.*?)" />#', $response, $sesindex); 
-$data['status'] = "ok"; 
-$data['crumb'] = isset($crumb[1][0]) ? $crumb[1][0] : ""; 
-$data['acrumb'] = $acrumb[1][0]; 
-$data['config'] = isset($config[1][0]) ? $config[1][0] : ""; 
-$data['sesindex'] = $sesindex[1][0]; 
-$crumb = trim($data['crumb']); 
-$acrumb = trim($data['acrumb']); 
-$config = trim($data['config']); 
-$sesindex = trim($data['sesindex']); 
-$header = array(); 
-$header[] = "Host: login.yahoo.com"; 
-$header[] = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0"; 
-$header[] = "Accept: */*"; 
-$header[] = "Accept-Language: en-US,en;q=0.5"; 
-$header[] = "content-type: application/x-www-form-urlencoded; charset=UTF-8"; 
-$header[] = "X-Requested-With: XMLHttpRequest"; 
-$header[] = "Referer: https://login.yahoo.com/"; 
-$header[] = "Connection: keep-alive"; 
-$data = "acrumb=$acrumb&sessionIndex=$sesindex&username=".urlencode($user)."&passwd=&signin=Next"; 
-$c = curl_init("https://login.yahoo.com/"); 
-curl_setopt($c, CURLOPT_FOLLOWLOCATION, true); 
-curl_setopt($c, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0"); 
-curl_setopt($c, CURLOPT_REFERER, 'https://login.yahoo.com/'); 
-curl_setopt($c, CURLOPT_ENCODING, 'gzip, deflate, br');  
-curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);  
-curl_setopt($c, CURLOPT_HTTPHEADER, $header); 
-curl_setopt($c, CURLOPT_COOKIEJAR, "Info/cookie.txt"); 
-curl_setopt($c, CURLOPT_COOKIEFILE, "Info/cookie.txt"); 
-curl_setopt($c, CURLOPT_POSTFIELDS, $data); 
-curl_setopt($c, CURLOPT_POST, 1); 
-$b = curl_exec($c); 
-if(strstr($b,"INVALID_USERNAME")){
-return true;
-}else{
-return false;
-}
-}
-function verifyEmail($email){
-    $ip = file_get_contents("ip.txt");
-    $gmail = json_decode(file_get_contents("http://$ip/api/gmail.php?email=$email"),true)["result"]["success"];
-    if($gmail){
-      return false;
-    }else{
-     return true;
-  }
-
-}
-function check_ban($gmail){
-    $gmail = str_replace("@gmail.com", "", $gmail);
-    $data = "{\"input01\":{\"Input\":\"GmailAddress\",\"GmailAddress\":\"".$gmail."\",\"FirstName\":\"JKHack\",\"LastName\":\"JKHack\"},\"Locale\":\"en\"}";
-    
-    $header = array(); 
-    $header[] = "User-Agent: Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"; 
-    $header[] = "content-type: application/json; charset=utf-8"; 
-    $c = curl_init("https://accounts.google.com/InputValidator?resource=SignUp&service=mail"); 
-    curl_setopt($c, CURLOPT_USERAGENT, "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"); 
-    curl_setopt($c, CURLOPT_HTTPHEADER, $header); 
-    curl_setopt($c, CURLOPT_COOKIEJAR, "sessions/Gcookie.txt"); 
-    curl_setopt($c, CURLOPT_COOKIEFILE, "sessions/Gcookie.txt"); 
-    curl_setopt($c, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($c, CURLOPT_POST, 1); 
-    $b = curl_exec($c);
-    curl_close($c);
-    
-    if(preg_match('/"Valid":"true"/', $b)){
-
-   $s = "Yes";
-    }else{
-      $s = "No";
+    $mail = preg_replace('/@(.*)/', '',$mail);
+    $login = curl_init(); 
+    curl_setopt($login, CURLOPT_URL, "https://login.yahoo.com/config/login?.src=fpctx&.intl=xa&.lang=en-US&.done=https://maktoob.yahoo.com"); 
+    curl_setopt($login, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($login, CURLOPT_HTTPHEADER, explode("\n", 'Accept: */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+bucket: mbr-atthaloc-oauth
+Connection: keep-alive
+content-type: application/x-www-form-urlencoded; charset=UTF-8
+Cookie: B=025g2jdfbjjjm&b=3&s=g6; APID=1Ae136a6cc-943f-11ea-b443-1234a9bcb81c; A1=d=AQABBHbOuV4CEKee2YDgG1TADDB_Q5sCFgEFEgEBAQE6x16oX1xXb2UB_SMAAAcIds65XpsCFgE&S=AQAAAoxIqLGVR1LoIovR16q2D10; A3=d=AQABBHbOuV4CEKee2YDgG1TADDB_Q5sCFgEFEgEBAQE6x16oX1xXb2UB_SMAAAcIds65XpsCFgE&S=AQAAAoxIqLGVR1LoIovR16q2D10; GUC=AQEBAQFexzpfqEIbZQRy; A1S=d=AQABBHbOuV4CEKee2YDgG1TADDB_Q5sCFgEFEgEBAQE6x16oX1xXb2UB_SMAAAcIds65XpsCFgE&S=AQAAAoxIqLGVR1LoIovR16q2D10&j=WORLD; AS=v=1&s=ZW1bkdGu&d=A5edddfb4|J02naJT.2QLkBalG93h42dqZgWw4_e6JDUwKilcf8hsH4xFyFOmG.l3oNQ4uEizaovq0f0t4LycCJZENom6c5hBxBSZPx_AWmFrTXLDwHxDKfGF685_03QK8i6kL7sxWvpM_PQioWtazQsOdPAHQaB5vgcqRY.pfvJUtg0_UA3v0VNgV4YEllYCy_XL2FPVfEtYtVWmU6mCGNlhv3cjGCXVmKYAd.LvpEuS3fhwVQRtzyV3WvC_UKcX76rFmsrot1NXOQyUIsoQpsazBD4AJgNanfcu4m1a.b58dGtT00Xc1UK70dlCpV2G9GFgGzdQ26mOytJEaw6LN.WeKMcsIazOV5p8xr8NzT4UCKedPxp0FjfXTN__ljqjw304zGUItcEaKlgB42h4Le2nXDUh3Rx5PaSHX8OrjTj5DD_lSNGcFs_p1QATC0mLQsvBySVnGXCfPnerQqgkGAdB1QqLgMe81oCDb1lVRDtd2f9KnoFnYJ10tlNfFGsYK1Z3FLakEmULZpZ19LBSBbnd.Mcs1NdaHxbvmbm8IZI_ceARS6dm6vI2Fi6t_97aki9Jp8jdqSgEDb8dekTMHzPUedGWL8WbqzLAgVCU7xcwm3KfcA.mHd0nuOC5r95swTtIT9B1aX6RGRLc0gmFcyfpHq_kWs4Z0VZNpe19veDGs4TE2oLOyEi25qJW3V5s1BukNrZ1.DlatQS0QkagRXA60m.5IjWSymErAAMtXtzB6KWeoF0dg80wkf18pNNb.d8R_nakCD3uG6NaWS_ny9xn5uHWFCSPbPaMztcNtbQsgo2Ood4ep9BsJFW5FwAEfZS33LEvKAO4p5R6RdMRIdaSiitk_Yx8VtAJ6WA.oafBVvvOrWDCjArH69vSpwtnu3Xvubqy1KQrMqMiUbK.pqBFgTPWxAnZtMSd3_2U8r4Lv12hvZOFL0A.WFYEXdCTOl9Kx34ldcyzAv9XMErVhh8xs4lAcCLBQxSZ6noJbHA--~A|B5edf2dbf|nol7O7X.2Srmm7l.XRgD2PIGNZ4UqvPtTH9Qq5lvMej5tdPAPwTIwahYRyIi5X3W726CFhKdSMxvFU1dJ4J7GQH4rvhhCI2EUms4_XFlozERFUnastq5IVzl6Gzm8GjnCu0a.9BgNSXmewl7MPDrrCTRKpkJQk4iTAy5o.yPso_HLAInPq_qxqMko3eV0xqUBq95gLcNJgWhod2yB2MILvXNRfeKRwP9j.PDhXQgfwTRcD0RINTMxNdvZDNcyfJilbEX0V1oAYF5geSAnzWvwRGZBzgwrWQZFajGOFmhrc7Qvz1veg7k8X4KTNZGmjQVIBdvSZhaGIpgluu4Ee2x.SPiGXoW5WMgfR7gK.6Dn4pwjQVwANjn8FUYxVYBmDERBW.st5w.3jdxApm9adyZOXSfWoaTnwDaxWZgEnYBVHJUa_M5ivjRQSaleiE.Zo4ldQdQJfafeLCCI919izdK9azFSIGCVq2leK8tkfcz1Gu3HKTyob1vGP9hAHI4coOxafOi.f8tiURm7oQyHz.9AO5_igd08vVLL7sGquOOhd2lwePIajESKFeQWVbg4p9E1Q6zZTnZcVq1fH.sj1ojPqcGIcLdBenmFT.YJEPM0zvWiUif9TpwtWO6KBKF51uxMZO6fJFa_TLNIU8PCqhYriCsFipY1GbA_NhnrBEjg39HHR6cZqEeyv3hiZCcmOMDThj17nEnhYJqySQ-~A; APIDTS=1591598146
+Host: login.yahoo.com
+Origin: https://login.yahoo.com
+Referer: https://login.yahoo.com/config/login
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36
+X-Requested-With: XMLHttpRequest'));
+    curl_setopt($login, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36');
+    curl_setopt($login,CURLOPT_POST, 1);
+    $fields = 'acrumb=ZW1bkdGu&sessionIndex=Qg--&username='.$mail.'&passwd=&signin=Next&persistent=y';
+    curl_setopt($login,CURLOPT_POSTFIELDS, $fields);
+    $login = curl_exec($login);
+    echo $login;
+    $res = json_decode($login);
+    if(isset($res->render) and isset($res->render->error) and $res->render->error == 'messages.ERROR_INVALID_USERNAME'){
+    	return true;
+    } else {
+    	return false;
     }
-    return $s;
-  }
+}
 function checkGmail($mail){
     $mail = trim($mail);
     if(strpos($mail, ' ') or strpos($mail, '+')){
@@ -332,7 +196,7 @@ function checkGmail($mail){
    $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL,'https://accounts.google.com/InputValidator?resource=SignUp&service=mail');
   curl_setopt($ch,CURLOPT_HTTPHEADER, [
-    'User-Agent: generate User agent ',
+    'User-Agent: Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16',
 'Content-Type: application/json; charset=utf-8',
 'Host: accounts.google.com',
 'Expect: 100-continue',
@@ -729,11 +593,6 @@ class ig {
 					'radio_type'=>'wifi-none'
 		]);
 	}
-	public function sign_in_help($email)
-  {
-      $data = ['username_or_email'=>$email,'_uuid'=>$this->UUID()];
-      return $this->request('accounts/sign_in_help/',1,1,$data);
-  }
 	public function getFollowing($id,$mid,$uuu,$maxId = null){
 	    $config = json_decode(file_get_contents('config.json'),1);
 	    $from = 'Following.';
@@ -756,10 +615,10 @@ class ig {
     	bot('editmessageText',[
     		'chat_id'=>$config['id'],
     		'message_id'=>$mid,
-    		'text'=>"*𝐂𝐎𝐋𝐋𝐄𝐂𝐓𝐈𝐎𝐍 𝐅𝐑𝐎𝐌 * ~ [ _ $from _ ]\n\n*𝐒𝐓𝐀𝐓𝐔𝐒  * ~> _ 𝐖𝐎𝐑𝐊𝐈𝐍𝐆  _\n*𝐔𝐒𝐄𝐑𝐒 * ~> _ ".count(explode("\n", file_get_contents($file)))."_",
+    		'text'=>"*Collection From* ~ [ _ $from _ ]\n\n*Status* ~> _ Working _\n*Users* ~> _ ".count(explode("\n", file_get_contents($file)))."_",
 	'parse_mode'=>'markdown',
 	'reply_markup'=>json_encode(['inline_keyboard'=>[
-			[['text'=>'𝐒𝐓𝐎𝐏 .','callback_data'=>'stopgr']]
+			[['text'=>'Stop.','callback_data'=>'stopgr']]
 		]])
     	]);
 		}
@@ -769,16 +628,16 @@ class ig {
 			bot('editmessageText',[
     		'chat_id'=>$config['id'],
     		'message_id'=>$mid,
-    		'text'=>"*𝐂𝐎𝐋𝐋𝐄𝐂𝐓𝐈𝐎𝐍 𝐅𝐑𝐎𝐌 * ~ [ _ $from _ ]\n\n*𝐒𝐓𝐀𝐓𝐔𝐒  * ~> _ 𝐖𝐎𝐑𝐊𝐈𝐍𝐆  _\n*𝐔𝐒𝐄𝐑𝐒 * ~> _ ".count(explode("\n", file_get_contents($file)))."_",
+    		'text'=>"*Collection From* ~ [ _ $from _ ]\n\n*Status* ~> _ Working _\n*Users* ~> _ ".count(explode("\n", file_get_contents($file)))."_",
 	'parse_mode'=>'markdown',
 	'reply_markup'=>json_encode(['inline_keyboard'=>[
-			[['text'=>'𝐒𝐓𝐎𝐏 .','callback_data'=>'stopgr']]
+			[['text'=>'Stop.','callback_data'=>'stopgr']]
 		]])
     	]);
     	bot('sendMessage',[
     		'chat_id'=>$config['id'],
     		'reply_to_message_id'=>$mid,
-    		'text'=>"*𝗗𝗢𝗡𝗘 𝗖𝗢𝗟𝗟𝗘𝗖𝗧𝗜𝗢𝗡 . * \n 𝐀𝐋𝐋  : ".count(explode("\n", file_get_contents($file))),
+    		'text'=>"*Done Collection . * \n All : ".count(explode("\n", file_get_contents($file))),
     		'parse_mode'=>'markdown',
         ]);
 		}
@@ -805,10 +664,10 @@ class ig {
     	bot('editmessageText',[
     		'chat_id'=>$config['id'],
     		'message_id'=>$mid,
-    		'text'=>"*𝐂𝐎𝐋𝐋𝐄𝐂𝐓𝐈𝐎𝐍 𝐅𝐑𝐎𝐌 * ~ [ _ $from _ ]\n\n*𝐒𝐓𝐀𝐓𝐔𝐒  * ~> _ 𝐖𝐎𝐑𝐊𝐈𝐍𝐆  _\n*𝐔𝐒𝐄𝐑𝐒 * ~> _ ".count(explode("\n", file_get_contents($file)))."_",
+    		'text'=>"*Collection From* ~ [ _ $from _ ]\n\n*Status* ~> _ Working _\n*Users* ~> _ ".count(explode("\n", file_get_contents($file)))."_",
 	'parse_mode'=>'markdown',
 	'reply_markup'=>json_encode(['inline_keyboard'=>[
-			[['text'=>'𝐒𝐓𝐎𝐏 .','callback_data'=>'stopgr']]
+			[['text'=>'Stop.','callback_data'=>'stopgr']]
 		]])
     	]);
 		}
@@ -817,16 +676,16 @@ class ig {
 		} else {
 			bot('editmessageText',[
     		'chat_id'=>$config['id'],
-    		'text'=>"*𝐂𝐎𝐋𝐋𝐄𝐂𝐓𝐈𝐎𝐍 𝐅𝐑𝐎𝐌 * ~ [ _ $from _ ]\n\n*𝐒𝐓𝐀𝐓𝐔𝐒  * ~> _ 𝐖𝐎𝐑𝐊𝐈𝐍𝐆  _\n*𝐔𝐒𝐄𝐑𝐒 * ~> _ ".count(explode("\n", file_get_contents($file)))."_",
+    		'text'=>"*Collection From* ~ [ _ $from _ ]\n\n*Status* ~> _ Working _\n*Users* ~> _ ".count(explode("\n", file_get_contents($file)))."_",
 	'parse_mode'=>'markdown',
 	'reply_markup'=>json_encode(['inline_keyboard'=>[
-			[['text'=>'𝐒𝐓𝐎𝐏 .','callback_data'=>'stopgr']]
+			[['text'=>'Stop.','callback_data'=>'stopgr']]
 		]])
     	]);
     	bot('sendMessage',[
     		'chat_id'=>$config['id'],
     		'reply_to_message_id'=>$mid,
-    		'text'=>"*𝗗𝗢𝗡𝗘 𝗖𝗢𝗟𝗟𝗘𝗖𝗧𝗜𝗢𝗡 . * \n 𝐀𝐋𝐋  : ".count(explode("\n", file_get_contents($file))),
+    		'text'=>"*Done Collection . * \n All : ".count(explode("\n", file_get_contents($file))),
     		'parse_mode'=>'markdown',
         ]);
 		}

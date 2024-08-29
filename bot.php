@@ -1,8 +1,8 @@
 <?php
 date_default_timezone_set('Africa/Casablanca');
 if(!file_exists('config.json')){
-	$token = readline('-Hi OMAR Enter Token: ');
-	$id = readline('-Hi OMAR  Enter Id: ');
+	$token = readline('Enter Token: ');
+	$id = readline('Enter Id: ');
 	file_put_contents('config.json', json_encode(['id'=>$id,'token'=>$token]));
 	
 } else {
@@ -14,12 +14,6 @@ if(!file_exists('config.json')){
 if(!file_exists('accounts.json')){
     file_put_contents('accounts.json',json_encode([]));
 }
-
-$fackfor = "fack For everyone who steals my file or changes rights\n";
-    $fackfor2 = "HELLO TO MY TOOL";
-    echo $fackfor;
-    echo $fackfor2;
-
 include 'index.php';
 try {
 	$callback = function ($update, $bot) {
@@ -27,130 +21,25 @@ try {
 		if($update != null){
 		  $config = json_decode(file_get_contents('config.json'),1);
 		  $config['filter'] = $config['filter'] != null ? $config['filter'] : 1;
-          $accounts = json_decode(file_get_contents('accounts.json'),1);
+      $accounts = json_decode(file_get_contents('accounts.json'),1);
 			if(isset($update->message)){
 				$message = $update->message;
 				$chatId = $message->chat->id;
 				$text = $message->text;
 				if($chatId == $id){
 					if($text == '/start'){
-              $bot->sendphoto([ 'chat_id'=>$chatId,
-              'photo'=>"https://t.me/omarzerhouni",
-                   'caption'=>'التفعيل بواسطة المطور omarzerhouni@
-~ @omarzerhouni ',
-                  'inline_keyboard'=>true,
+              $bot->sendMessage([
+                  'chat_id'=>$chatId,
+                  'text'=>"اهلا بك عزيزي المشترك . \n - في اداة صيد المتاحات الخاصه بك. \n\n By ~ @zerhounicnal",
                   'reply_markup'=>json_encode([
-                         'keyboard'=>[
-                          [['text'=>'- English 🇺🇸']],
-                          [['text'=>'- عربي🇮🇶']],
-                          [['text'=>'- فيديو شرح للبوت 📷']],
-                          [['text'=>'- طرق الصيد 📻']],
-                          [['text'=>'-Zerhouni ̇༗']],
-                          [['text'=>'️ما هوا بوت صيد والمتاحات 🔥']],
-                          [['text'=>'️- فيديو تخطي حظر وهمي الانستقرام 🎥']],
-                          [['text'=>'️- فيديو طريقه توصيل الريست 🗡️']],
-                          [['text'=>'️تطبيق توصيل الريست✝️']],
-                      ]
-                  ])
-              ]);   
-            } if($text == '- English 🇺🇸'){ 
-        	$config['filter'] = $text;
-		    $bot->sendMessage([
-		       'chat_id'=>$chatId,
-                'message_id'=>$mid,
-                'text'=>"Zerhouni ~ @omarzerhouni",
-                'reply_markup'=>json_encode([
                       'inline_keyboard'=>[
-                          [['text'=>'✨┇ Add Accounts🛗','callback_data'=>'login']],
-                          [['text'=>'🕵️┇ Geting users','callback_data'=>'grabber']],
-                          [['text'=>'📳┇ Start Checking','callback_data'=>'run'],['text'=>' 📴┇Stop Checking','callback_data'=>'stop']],
-                          [['text'=>'🪐┇Accounts Status','callback_data'=>'status']],
+                          [['text'=>' اضافة حسابات','callback_data'=>'login']],
+                          [['text'=>'ادارة اليوزرات والبحث','callback_data'=>'grabber']],
+                          [['text'=>'بدأ الفحص','callback_data'=>'run'],['text'=>'ايقاف الفحص','callback_data'=>'stop']],
+                          [['text'=>'حالة الاداة','callback_data'=>'status']],
                       ]
                   ])
-               ]);
-           } if($text == '- عربي🇮🇶'){
-            $config['filter'] = $text;
-		    $bot->sendMessage([
-		       'chat_id'=>$chatId,
-                'message_id'=>$mid,
-                'text'=>"Zerhouni ~ @omarzerhouni",
-                'reply_markup'=>json_encode([
-                      'inline_keyboard'=>[
-                          [['text'=>'تسجيل حساب ✨┇','callback_data'=>'login']],
-                          [['text'=>'طرق الصيد 🕵️┇','callback_data'=>'grabber']],
-                          [['text'=>'بدء الصيد 📳┇','callback_data'=>'run'],['text'=>'ايقاف الصيد 📴┇','callback_data'=>'stop']],
-                          [['text'=>' حاله الحسابات 🪐┇','callback_data'=>'status']],
-                      ]
-                  ])
-               ]);
-               
-               } if($text == '- فيديو شرح للبوت 📷'){
-                  $bot->sendphoto([ 
-                  'chat_id'=>$chatId,
-                  'photo'=>"https://t.me/Zerhounicnal/50",
-
               ]);   
-                
-               } if($text == '- طرق الصيد 📻'){
-                 $bot->sendvoice([
-                  'chat_id'=>$chatId,
-                  'voice'=>"https://t.me/FOLLOW_NAFSEA/147",
-                  
-              ]);   
-                
-              } if($text == '- طرق الصيد 📻'){
-                $bot->sendvoice([ 
-                 'chat_id'=>$chatId,
-                 'voice'=>"https://t.me/FOLLOW_NAFSEA/160",
-
-              ]);   
-                
-           } if($text == '-Zerhouni ̇༗'){ 
-            $bot->sendMessage([
-		       'chat_id'=>$chatId,
-                'message_id'=>$mid,
-                'text'=>".🔫.
-𝐓𝐞𝐥𝐞 : @omarzerhouni |",
-
-              ]);   
-              
-           } if($text == '️- ما هوا بوت صيد والمتاحات 🔥'){ 
-            $bot->sendMessage([
-         'chat_id'=>$chatId,
-                'message_id'=>$mid,
-                'text'=>"قبل ان اعلمك كيف تقوم بصيد المتاحات يجب عليك ان تعرف ما هي المتاحات
-*
-*
-*
-- المتاحات هي : حسابات انستقرام او فيس بوك او تويتر او .......  هذه الحسابات تكون مربوط بايميلات لكن هذه الايميلات غير موجود
-*
-*
-*
-كيف تربط الايميلات بهذه الحسابات اذ لم تكن موجودة اصلن . تربط هذه الايميلات بالحسابات لاكن عند ربطها لا تقوم بطلب كود للتحقق من البريد
-
-*
-*
-*
-- طريقة عمل بوت الصيد
-
-طريقة عمل بوت الصيد هيه انك تقوم بجمع يوزرات من الانستقرام ووضعها بالبوت ويقوم بالتخمين على المتابعين او الذين يقوم بمتابعتهم حسب اختيار بالطبع هناك طرق اخرى للسحب عبر هاشتاق متلا او كلمات بالبحث
-",
-
-              ]);
-              
-           } if($text == '️- فيديو تخطي حظر وهمي الانستقرام 🎥'){
-                  $bot->sendphoto([ 
-                  'chat_id'=>$chatId,                  'photo'=>"https://t.me/SUPERX1/8",
-
-              ]);
-              
-              } if($text == '️- فيديو طريقه توصيل الريست 🗡️'){
-                  $bot->sendphoto([ 
-                  'chat_id'=>$chatId,                  'photo'=>"https://t.me/HH7H9/7146",
-				  'caption'=>'برنامج توصيل الريست 🌝
-https://t.me/a011437/6',
-              ]);
-              
           } elseif($text != null){
           	if($config['mode'] != null){
           		$mode = $config['mode'];
@@ -171,7 +60,7 @@ https://t.me/a011437/6',
           					$bot->sendMessage([
           							'chat_id'=>$chatId,
           							'parse_mode'=>'markdown',
-          							'text'=>"*Error*.\n - Incorrect Username Or Password"
+          							'text'=>"*Error*.\n - اليوزر او الرمز خاطئ"
           					]);
           				}
           			} elseif(isset($body->logged_in_user)) {
@@ -189,16 +78,16 @@ https://t.me/a011437/6',
           				$bot->sendMessage([
           				      'parse_mode'=>'markdown',
           							'chat_id'=>$chatId,
-          							'text'=>"*Done Add New Accounts To Your Tool.*\n _Username_ : [$user])(instagram.com/$user)\n_Account Name_ : _{$body->full_name}_",
+          							'text'=>"*تم اضافة الحساب الى الاداة.*\n _Username_ : [$user])(instagram.com/$user)\n_Account Name_ : _{$body->full_name}_",
 												'reply_to_message_id'=>$mid		
           					]);
           				$keyboard = ['inline_keyboard'=>[
-										[['text'=>"Add New Accounts",'callback_data'=>'addL']]
+										[['text'=>"اضافة حساب جديد",'callback_data'=>'addL']]
 									]];
 		              foreach ($accounts as $account => $v) {
 		                  $keyboard['inline_keyboard'][] = [['text'=>$account,'callback_data'=>'ddd'],['text'=>"Logout",'callback_data'=>'del&'.$account]];
 		              }
-		              $keyboard['inline_keyboard'][] = [['text'=>'🔙 رجوع','callback_data'=>'back']];
+		              $keyboard['inline_keyboard'][] = [['text'=>'Main Page','callback_data'=>'back']];
 		              $bot->editMessageText([
 		                  'chat_id'=>$chatId,
 		                  'message_id'=>$mid,
@@ -219,17 +108,17 @@ https://t.me/a011437/6',
           		    $config['filter'] = $text;
           		    $bot->editMessageText([
                       'chat_id'=>$chatId,
-                'message_id'=>$mid,
-                'text'=>"Zerhouni ~ @omarzerhouni",
-                'reply_markup'=>json_encode([
+                      'message_id'=>$mid,
+                      'text'=>"اهلا بك عزيزي المشترك . \n - في اداة صيد المتاحات الخاصه بك. \n\n By ~ @omarzerhouni",
+                  'reply_markup'=>json_encode([
                       'inline_keyboard'=>[
-                          [['text'=>'تسجيل حساب ✨┇','callback_data'=>'login']],
-                          [['text'=>'طرق الصيد 🕵️┇','callback_data'=>'grabber']],
-                          [['text'=>'بدء الصيد 📳┇','callback_data'=>'run'],['text'=>'ايقاف الصيد 📴┇','callback_data'=>'stop']],
-                          [['text'=>' حاله الحسابات 🪐┇','callback_data'=>'status']],
+                          [['text'=>'اضافة حساب','callback_data'=>'login']],
+                          [['text'=>'ادارة اليوزرات','callback_data'=>'grabber']],
+                          [['text'=>'بدأ الفحص','callback_data'=>'run'],['text'=>'ايقاف الفحص','callback_data'=>'stop']],
+                          [['text'=>'حالة الاداة','callback_data'=>'status']],
                       ]
                   ])
-               ]);
+                  ]);
           		    $config['mode'] = null;
 		              $config['mid'] = null;
 		              file_put_contents('config.json', json_encode($config));
@@ -270,15 +159,13 @@ https://t.me/a011437/6',
           	}
           }
 				} else {
-					$bot->sendphoto([
-       'chat_id'=>$chatId,
-       'photo'=> "https://t.me/omarzerhouni",
-        'caption'=>'البوت مدفوع 💲 و ليس مجاني 👁‍🗨
-لشراء نسخه مراسلة المطور 👁‍🗨',
-                  'reply_markup'=>json_encode([
-                      'inline_keyboard'=>[
-                          [['text'=>'▫️| مطور البوت','url'=>'t.me/omarzerhouni']],
-                       [['text'=>"▪️| قناه صيد المشتركين", 'url'=>"t.me/Zerhounicnal"]],
+					$bot->sendMessage([
+							'chat_id'=>$chatId,
+							'text'=>"🕸️|| نسخه صيد متاحات انستكرام خاصه
+لشراء ملفات النسخه او تنصيب راسلنا . ",
+							'reply_markup'=>json_encode([
+                  'inline_keyboard'=>[
+                      [['text'=>'🕸️|| المطور ','url'=>'t.me/omarzerhouni']]
                   ]
 							])
 					]);
@@ -291,12 +178,12 @@ https://t.me/a011437/6',
           if($data == 'login'){
               
         		$keyboard = ['inline_keyboard'=>[
-										[['text'=>"Add New Accounts",'callback_data'=>'addL']]
+										[['text'=>"اضافة حساب جديد",'callback_data'=>'addL']]
 									]];
 		              foreach ($accounts as $account => $v) {
-		                  $keyboard['inline_keyboard'][] = [['text'=>$account,'callback_data'=>'ddd'],['text'=>"Logout",'callback_data'=>'del&'.$account]];
+		                  $keyboard['inline_keyboard'][] = [['text'=>$account,'callback_data'=>'ddd'],['text'=>"تسجيل خروج",'callback_data'=>'del&'.$account]];
 		              }
-		              $keyboard['inline_keyboard'][] = [['text'=>'🔙 رجوع','callback_data'=>'back']];
+		              $keyboard['inline_keyboard'][] = [['text'=>'Main Page','callback_data'=>'back']];
 		              $bot->editMessageText([
 		                  'chat_id'=>$chatId,
 		                  'message_id'=>$mid,
@@ -310,7 +197,7 @@ https://t.me/a011437/6',
           	file_put_contents('config.json', json_encode($config));
           	$bot->sendMessage([
           			'chat_id'=>$chatId,
-          			'text'=>"Send Account Like : \n `user:pass`",
+          			'text'=>"ارسل الحساب الوهمي : \n `يوزر:باسوورد`",
           			'parse_mode'=>'markdown'
           	]);
           } elseif($data == 'grabber'){
@@ -320,43 +207,43 @@ https://t.me/a011437/6',
             $bot->editMessageText([
                 'chat_id'=>$chatId,
                 'message_id'=>$mid,
-                'text'=>"Users collection page. \n - Users : $count \n - For Account : $for",
+                'text'=>"هذه ادارة اليوزرات والبحث. \n - اختر نوع الصيد : $count \n - For Account : $for",
                 'reply_markup'=>json_encode([
                     'inline_keyboard'=>[
-                        [['text'=>'🔎 سحب من البحث','callback_data'=>'search']],
-                        [['text'=>'#⃣ سحب من الهشتاكات','callback_data'=>'hashtag'],['text'=>'📮 سحب من الاكسبلور','callback_data'=>'explore']],
-                        [['text'=>'👤 سحب من المتابعين','callback_data'=>'followers'],['text'=>"🚹 سحب من المتابعهم",'callback_data'=>'following']],
-                        [['text'=>"تحديد حساب ♾ : $for",'callback_data'=>'for']],
-                        [['text'=>'🔖 لسته جديده','callback_data'=>'newList'],['text'=>'🖇 لسته قديمة','callback_data'=>'append']],
-                        [['text'=>'✅ رجوع','callback_data'=>'back']],
+                        [['text'=>'من البحث','callback_data'=>'search']],
+                        [['text'=>'من الهاشتاكات #','callback_data'=>'hashtag'],['text'=>'Explore .','callback_data'=>'explore']],
+                        [['text'=>'من متابعين','callback_data'=>'followers'],['text'=>"من متابعهم",'callback_data'=>'following']],
+                        [['text'=>"For Accounts : $for",'callback_data'=>'for']],
+                        [['text'=>'لستة يوزرات جديده','callback_data'=>'newList'],['text'=>'بدأ لسته جديده','callback_data'=>'append']],
+                        [['text'=>'خروج من الصفحه','callback_data'=>'back']],
                     ]
                 ])
             ]);
           } elseif($data == 'search'){
             $bot->sendMessage([
                 'chat_id'=>$chatId,
-                'text'=>"الان ارسل كلمات البحث لتم فحصهم \n يمكنك ارسال اكثر من كلمه من خلال وضع مسافه بينهم"
+                'text'=>"ارسل الكلمات للبحث \n - مثال doe hitham name city pro photo"
             ]);
             $config['mode'] = 'search';
             file_put_contents('config.json', json_encode($config));
           } elseif($data == 'followers'){
             $bot->sendMessage([
                 'chat_id'=>$chatId,
-                'text'=>"الان ارسل اليوزر لتم فحص اليتابعهم \n يمكنك ارسال اكثر من يوزر من خلال وضع مسافه بينهم"
+                'text'=>"Now Send Users to check out followers \n - You can send more than one user by putting a space between them"
             ]);
             $config['mode'] = 'followers';
             file_put_contents('config.json', json_encode($config));
           } elseif($data == 'following'){
             $bot->sendMessage([
                 'chat_id'=>$chatId,
-                'text'=>"الان ارسل اليوزر لتم فحص المتابعين \n يمكنك ارسال اكثر من يوزر من خلال وضع مسافه بينهم"
+                'text'=>"اليك السحب من متابعهم \n - You ارسل اليوزرات للفحص"
             ]);
             $config['mode'] = 'following';
             file_put_contents('config.json', json_encode($config));
           } elseif($data == 'hashtag'){
             $bot->sendMessage([
                 'chat_id'=>$chatId,
-                'text'=>"الان ارسل الهشتاكات بدون العلامه # \nيمكنك ارسال هشتاك واحد"
+                'text'=>"ارسل هاشتاك واحد للبحث # \n 0 You can only send one."
             ]);
             $config['mode'] = 'hashtag';
             file_put_contents('config.json', json_encode($config));
@@ -371,7 +258,7 @@ https://t.me/a011437/6',
             file_put_contents('a', 'ap');
             $bot->answerCallbackQuery([
 							'callback_query_id'=>$update->callback_query->id,
-							'text'=>"Done Select Exsist list.",
+							'text'=>"تم تحديد اللسته جديده.",
 							'show_alert'=>1
 						]);
 						
@@ -444,7 +331,7 @@ https://t.me/a011437/6',
             shell_exec('screen -S gr -X quit');
             $bot->answerCallbackQuery([
 							'callback_query_id'=>$update->callback_query->id,
-							'text'=>"Done Stop Collecting.",
+							'text'=>"انتهى تخمين اليوزرات اذهب للفحص.",
 						// 	'show_alert'=>1
 						]);
 						$for = $config['for'] != null ? $config['for'] : 'Select Account';
@@ -452,15 +339,15 @@ https://t.me/a011437/6',
 						$bot->editMessageText([
                 'chat_id'=>$chatId,
                 'message_id'=>$mid,
-                'text'=>"Users collection page. \n - Users : $count \n - For Account : $for",
+                'text'=>"لستة اليوزرات المخمنه. \n - اليوزرات : $count \n - For Account : $for",
                 'reply_markup'=>json_encode([
                     'inline_keyboard'=>[
-                        [['text'=>'🔎 سحب من البحث','callback_data'=>'search']],
-                        [['text'=>'#⃣ سحب من الهشتاكات','callback_data'=>'hashtag'],['text'=>'📮 سحب من الاكسبلور','callback_data'=>'explore']],
-                        [['text'=>'👤 سحب من المتابعين','callback_data'=>'followers'],['text'=>"🚹 سحب من المتابعهم",'callback_data'=>'following']],
-                        [['text'=>"تحديد حساب ♾ : $for",'callback_data'=>'for']],
-                        [['text'=>'🔖 لسته جديده','callback_data'=>'newList'],['text'=>'🖇 لسته قديمة','callback_data'=>'append']],
-                        [['text'=>'✅ رجوع','callback_data'=>'back']],
+                        [['text'=>'من البحث','callback_data'=>'search']],
+                        [['text'=>'من الهاشتاك #','callback_data'=>'hashtag'],['text'=>'Explore .','callback_data'=>'explore']],
+                        [['text'=>'من متابعين','callback_data'=>'followers'],['text'=>"من المتابعهم",'callback_data'=>'following']],
+                        [['text'=>"For Accounts : $for",'callback_data'=>'for']],
+                        [['text'=>'لستة جديده','callback_data'=>'newList'],['text'=>'ضبط اللسته جديده','callback_data'=>'append']],
+                        [['text'=>'الخروج من الصفحه','callback_data'=>'back']],
                     ]
                 ])
             ]);
@@ -479,23 +366,23 @@ https://t.me/a011437/6',
 					}
 					$bot->sendMessage([
 							'chat_id'=>$chatId,
-							'text'=>"Accounts Status: \n\n $status",
+							'text'=>"حالة الحساب: \n\n $status",
 							'parse_mode'=>'markdown'
 						]);
 				} elseif($data == 'back'){
           	$bot->editMessageText([
                       'chat_id'=>$chatId,
-                'message_id'=>$mid,
-                'text'=>"Zerhouni ~ @omarzerhouni",
-                'reply_markup'=>json_encode([
+                      'message_id'=>$mid,
+                      'text'=>"اهلا بك عزيزي المشترك . \n - في اداة صيد المتاحات الخاصه بك. \n\n By ~ @omarzerhouni",
+                  'reply_markup'=>json_encode([
                       'inline_keyboard'=>[
-                          [['text'=>'تسجيل حساب ✨┇','callback_data'=>'login']],
-                          [['text'=>'طرق الصيد 🕵️┇','callback_data'=>'grabber']],
-                          [['text'=>'بدء الصيد 📳┇','callback_data'=>'run'],['text'=>'ايقاف الصيد 📴┇','callback_data'=>'stop']],
-                          [['text'=>' حاله الحسابات 🪐┇','callback_data'=>'status']],
+                          [['text'=>'اضافة حسابات','callback_data'=>'login']],
+                          [['text'=>'ادارة اليوزرات','callback_data'=>'grabber']],
+                          [['text'=>'بدأ الفحص','callback_data'=>'run'],['text'=>'ايقاف الفحص','callback_data'=>'stop']],
+                          [['text'=>'حالة الاداة','callback_data'=>'status']],
                       ]
                   ])
-               ]);
+                  ]);
           } else {
           	$data = explode('&',$data);
           	if($data[0] == 'del'){
@@ -508,35 +395,12 @@ https://t.me/a011437/6',
 		              foreach ($accounts as $account => $v) {
 		                  $keyboard['inline_keyboard'][] = [['text'=>$account,'callback_data'=>'ddd'],['text'=>"Logout",'callback_data'=>'del&'.$account]];
 		              }
-		              $keyboard['inline_keyboard'][] = [['text'=>'🔙 رجوع','callback_data'=>'back']];
+		              $keyboard['inline_keyboard'][] = [['text'=>'Main Page','callback_data'=>'back']];
 		              $bot->editMessageText([
 		                  'chat_id'=>$chatId,
 		                  'message_id'=>$mid,
-		                  'text'=>"Accounts Control Page.",
+		                  'text'=>"صفحة ادارة الحسابات.",
 		                  'reply_markup'=>json_encode($keyboard)
-		              ]);
-		} elseif($data[0] == 'moveList'){
-          	  file_put_contents('list', $data[1]);
-          	  $keyboard = [];
-          	  foreach ($accounts as $account => $v) {
-                  $keyboard['inline_keyboard'][] = [['text'=>$account,'callback_data'=>'moveListTo&'.$account]];
-              }
-              $bot->editMessageText([
-                  'chat_id'=>$chatId,
-                  'message_id'=>$mid,
-                  'text'=>"اختر الحساب الذي تريد نقل اللسته اليه",
-                  'reply_markup'=>json_encode($keyboard)
-	              ]);
-          	} elseif($data[0] == 'moveListTo'){
-          	  $keyboard = [];
-          	  file_put_contents($data[1], file_get_contents(file_get_contents('list')));
-          	  unlink(file_get_contents('list'));
-          	  $keyboard['inline_keyboard'][] = [['text'=>'القائمه الرئيسية ✅','callback_data'=>'back']];
-          	  $bot->editMessageText([
-                  'chat_id'=>$chatId,
-                  'message_id'=>$mid,
-                  'text'=>"تم نقل اللسته الى الحساب  ✅".$data[1],
-                  'reply_markup'=>json_encode($keyboard)
 	              ]);
           	} elseif($data[0] == 'forg'){
           	  $config['for'] = $data[1];
@@ -546,15 +410,15 @@ https://t.me/a011437/6',
               $bot->editMessageText([
                 'chat_id'=>$chatId,
                 'message_id'=>$mid,
-                'text'=>"Users collection page. \n - Users : $count \n - For Account : $for",
+                'text'=>"عدد اليوزرات المخمنه. \n - اليوزرات : $count \n - في الحساب : $for",
                 'reply_markup'=>json_encode([
                     'inline_keyboard'=>[
-                        [['text'=>'🔎 سحب من البحث','callback_data'=>'search']],
-                        [['text'=>'📌 سحب من الهشتاكات','callback_data'=>'hashtag'],['text'=>'📮 سحب من الاكسبلور','callback_data'=>'explore']],
-                        [['text'=>'👤 سحب من المتابعين','callback_data'=>'followers'],['text'=>"🚹 سحب من المتابعهم",'callback_data'=>'following']],
-                        [['text'=>"تحديد حساب ♾ : $for",'callback_data'=>'for']],
-                        [['text'=>'🖇 لسته قديمة','callback_data'=>'newList'],['text'=>'🔖 لسته جديده','callback_data'=>'append']],
-                        [['text'=>'✅ رجوع','callback_data'=>'back']],
+                        [['text'=>'من البحث','callback_data'=>'search']],
+                        [['text'=>'From Hashtag #','callback_data'=>'hashtag'],['text'=>'Explore .','callback_data'=>'explore']],
+                        [['text'=>'من متابعين','callback_data'=>'followers'],['text'=>"من المتابعهم",'callback_data'=>'following']],
+                        [['text'=>"الحساب المحدد : $for",'callback_data'=>'for']],
+                        [['text'=>'لسته جديده','callback_data'=>'newList'],['text'=>'تأكيد اللسته الجديده','callback_data'=>'append']],
+                        [['text'=>'الخروج من الصفحه','callback_data'=>'back']],
                     ]
                 ])
             ]);
@@ -562,39 +426,35 @@ https://t.me/a011437/6',
           	  file_put_contents('screen', $data[1]);
           	  $bot->editMessageText([
                       'chat_id'=>$chatId,
-                'message_id'=>$mid,
-                'text'=>"Zerhouni ~ @omarzerhouni",
-                'reply_markup'=>json_encode([
+                      'message_id'=>$mid,
+                      'text'=>"Welcome . \n - To Your IG Bussines Tool. \n\n By ~ @omarzerhouni",
+                  'reply_markup'=>json_encode([
                       'inline_keyboard'=>[
-                          [['text'=>'تسجيل حساب ✨┇','callback_data'=>'login']],
-                          [['text'=>'طرق الصيد 🕵️┇','callback_data'=>'grabber']],
-                          [['text'=>'بدء الصيد 📳┇','callback_data'=>'run'],['text'=>'ايقاف الصيد 📴┇','callback_data'=>'stop']],
-                          [['text'=>' حاله الحسابات 🪐┇','callback_data'=>'status']],
+                          [['text'=>'اضافة الحسابات','callback_data'=>'login']],
+                          [['text'=>'ادارة اليوزرات','callback_data'=>'grabber']],
+                          [['text'=>'بدأ الفحص','callback_data'=>'run'],['text'=>'ايقاف الفحص','callback_data'=>'stop']],
+                          [['text'=>'حالة الاداة','callback_data'=>'status']],
                       ]
                   ])
-               ]);
+                  ]);
               exec('screen -dmS '.explode(':',$data[1])[0].' php start.php');
               $bot->sendMessage([
                 'chat_id'=>$chatId,
-                'text'=>"تم بدا الصيد 
-
-الوقت ⏲️ : " . date('g:i') . "\n" . "
-الحساب الوهمي 🦇 : ".explode(':',$data[1])[0].'
- ━━━━━━━━━━━━━━━━━━━━━',
+                'text'=>"*جار بدأ الفحص.*\n Account: `".explode(':',$data[1])[0].'`',
                 'parse_mode'=>'markdown'
               ]);
           	} elseif($data[0] == 'stop'){
           	  $bot->editMessageText([
                       'chat_id'=>$chatId,
-                'message_id'=>$mid,
-                'text'=>"Zerhouni ~ @omarzerhouni",
-                'reply_markup'=>json_encode([
+                      'message_id'=>$mid,
+                      'text'=>"اهلا بك عزيزي المشترك . \n - في اداة صيد المتاحات الخاصه بك. \n\n By ~ @omarzerhouni",
+                      'reply_markup'=>json_encode([
                       'inline_keyboard'=>[
-                          [['text'=>'تسجيل حساب ✨┇','callback_data'=>'login']],
-                          [['text'=>'طرق الصيد 🕵️┇','callback_data'=>'grabber']],
-                          [['text'=>'بدء الصيد 📳┇','callback_data'=>'run'],['text'=>'ايقاف الصيد 📴┇','callback_data'=>'stop']],
-                          [['text'=>' حاله الحسابات 🪐┇','callback_data'=>'status']],
-                      ]
+                          [['text'=>'اضافة الحسابات','callback_data'=>'login']],
+                          [['text'=>'ادارة اليوزرات','callback_data'=>'grabber']],
+                          [['text'=>'بدأ الفحص','callback_data'=>'run'],['text'=>'ايقاف الفحص','callback_data'=>'stop']],
+                          [['text'=>'حالة الاداة','callback_data'=>'status']],
+                       ]
                   ])
                ]);
               exec('screen -S '.explode(':',$data[1])[0].' -X quit');
