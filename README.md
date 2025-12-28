@@ -1,30 +1,56 @@
-# youtubebot is an Instagram Tool hacking 
+# youtubebot - Instagram Account Checker
 
-Instagram Account Checker is a PHP tool designed to verify the validity of Instagram accounts. This project allows you to check if an Instagram account can be pirated by email vulnirability.This tool helps you determine whether an Instagram Business account exists and whether the email address linked to it is valid or not.
-<h1> Features</h1>
+youtubebot is a PHP tool to verify the validity of Instagram accounts, check email vulnerabilities, and manage Instagram business account checks. It supports Telegram bot integration for notifications and control.
 
-<h2>*Email Availability Check:*</h2>
+## Features
 
--   *Checks whether the email address associated with the account is valid and available.*
+- **Email Availability Check:**
+   - Checks if the email address associated with an Instagram account is valid and available.
+   - Supports Gmail, Yahoo, Hotmail, Mail.ru, and more.
+- **Telegram Bot Integration:**
+   - Control and receive notifications via Telegram.
+- **User Management:**
+   - Add, remove, and manage Instagram accounts for checking.
+- **Automated Collection:**
+   - Collect users from search, hashtags, followers, following, and explore.
 
--    Sends a request to Gmail's web interface to check if a given email address exists. This method is specific to Gmail accounts.Yahoo Account Check....
+## Recent Updates (2025)
 
+- Fixed PHP errors and warnings (undefined array keys, variable initialization).
+- Improved compatibility for Windows (no Linux-only commands required).
+- Enhanced error handling for missing files and configuration keys.
+- Refactored code for better maintainability and reliability.
 
-<h4>To install :</h4>
-  <ul>Kali linux && Termux</ul> :
-  
-  1. **Clone the repository:**
-      ```bash
-      git clone https://github.com/ydxj/youtubebot/
+## Installation & Usage
 
-2. **Navigate to the project directory:
+### Requirements
+- PHP 7.4 or newer
+- cURL extension enabled
+- Telegram bot token and your Telegram user ID
+
+### Steps
+1. **Clone the repository:**
     ```bash
-   cd youtubebot
-3. **Runing Tool:**
-   ```bash
-   php bot.php
+    git clone https://github.com/ydxj/youtubebot/
+    ```
+2. **Navigate to the project directory:**
+    ```bash
+    cd youtubebot
+    ```
+3. **Run the tool:**
+    ```bash
+    php bot.php
+    ```
+    - On first run, you will be prompted for your Telegram bot token and user ID.
 
-- need a token bot and id(Telegram).
+### Notes
+- The tool now works on Windows and Linux.
+- All major PHP warnings and errors have been fixed.
+- If you see any file or config errors, ensure you have run the tool at least once to generate the required files.
 
+## Telegram Setup
+- Create a Telegram bot via [BotFather](https://t.me/BotFather) and get the token.
+- Get your Telegram user ID (e.g., via [userinfobot](https://t.me/userinfobot)).
+- Enter these when prompted on first run.
 
-Enjoy
+## Enjoy!

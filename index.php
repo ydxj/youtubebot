@@ -446,14 +446,17 @@ class EzTG
 }
 class EzTGKeyboard
 {
+    public $line;
+    public $type;
+    public $keyboard;
     public function __construct($type = 'keyboard', $rkm = array('resize_keyboard' => true, 'keyboard' => array()))
     {
         $this->line = 0;
         $this->type = $type;
         if ($type === 'inline') {
             $this->keyboard = array(
-        'inline_keyboard' => array()
-      );
+                'inline_keyboard' => array()
+            );
         } else {
             $this->keyboard = $rkm;
         }
@@ -741,20 +744,20 @@ class ig {
     
     return $uuid;
 	}
-	private function request($path,$account = 0,$post = 0,$datas = 0,$returnHeaders = 0){
-		$ch = curl_init(); 
-	  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	  if($post == 1){
-	  	curl_setopt($ch, CURLOPT_POST, 1);
-	  }
-	  if($datas != 0 and $post == 1){
-		  curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($datas));
-		  curl_setopt($ch, CURLOPT_URL, $this->url .'/'. $path); 
-	  } elseif($datas != 0 and $post == 0){
-	  	curl_setopt($ch, CURLOPT_URL, $this->url .'/'. $path.'?'.http_build_query($datas)); 
-	  } else {
-	  	curl_setopt($ch, CURLOPT_URL, $this->url .'/'. $path); 
-	  }
+    private function request($path,$account = 0,$post = 0,$datas = array(),$returnHeaders = 0){
+        $ch = curl_init(); 
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if($post == 1){
+            curl_setopt($ch, CURLOPT_POST, 1);
+        }
+        if(!empty($datas) && $post == 1){
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($datas));
+            curl_setopt($ch, CURLOPT_URL, $this->url .'/'. $path); 
+        } elseif(!empty($datas) && $post == 0){
+            curl_setopt($ch, CURLOPT_URL, $this->url .'/'. $path.'?'.http_build_query($datas)); 
+        } else {
+            curl_setopt($ch, CURLOPT_URL, $this->url .'/'. $path); 
+        }
 	  if($account == 0){
 	  	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 		     'x-ig-capabilities: 3w==',

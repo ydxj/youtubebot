@@ -20,9 +20,21 @@ try {
 		global $id;
 		if($update != null){
 		  $config = json_decode(file_get_contents('config.json'),1);
-		  $config['filter'] = $config['filter'] != null ? $config['filter'] : 1;
-      $accounts = json_decode(file_get_contents('accounts.json'),1);
-			if(isset($update->message)){
+		  if (!isset($config['filter']) || $config['filter'] == null) {
+			  $config['filter'] = 1;
+		  }
+		  if (!isset($config['for']) || $config['for'] == null) {
+			  $config['for'] = 'حدد الحساب';
+		  }
+		  $accounts = json_decode(file_get_contents('accounts.json'),1);
+		  // Always define $mid from context if possible
+		  $mid = null;
+		  if (isset($update->callback_query) && isset($update->callback_query->message->message_id)) {
+			  $mid = $update->callback_query->message->message_id;
+		  } elseif (isset($update->message) && isset($update->message->message_id)) {
+			  $mid = $update->message->message_id;
+		  }
+		  if(isset($update->message)){
 				$message = $update->message;
 				$chatId = $message->chat->id;
 				$text = $message->text;
@@ -81,19 +93,38 @@ try {
           							'text'=>"*تم اضافة الحساب الى الاداة.*\n _Username_ : [$user])(instagram.com/$user)\n_Account Name_ : _{$body->full_name}_",
 												'reply_to_message_id'=>$mid		
           					]);
-          				$keyboard = ['inline_keyboard'=>[
-										[['text'=>"اضافة حساب جديد",'callback_data'=>'addL']]
-									]];
-		              foreach ($accounts as $account => $v) {
-		                  $keyboard['inline_keyboard'][] = [['text'=>$account,'callback_data'=>'ddd'],['text'=>"Logout",'callback_data'=>'del&'.$account]];
-		              }
-		              $keyboard['inline_keyboard'][] = [['text'=>'Main Page','callback_data'=>'back']];
-		              $bot->editMessageText([
-		                  'chat_id'=>$chatId,
-		                  'message_id'=>$mid,
-		                  'text'=>"Accounts Control Page.",
-		                  'reply_markup'=>json_encode($keyboard)
-		              ]);
+						  $keyboard = ['inline_keyboard'=>[
+											[['text'=>"اضافة حساب جديد",'callback_data'=>'addL']]
+													]];
+							  foreach ($accounts as $account => $v) {
+								  $keyboard['inline_keyboard'][] = [['text'=>$account,'callback_data'=>'ddd'],['text'=>"Logout",'callback_data'=>'del&'.$account]];
+							  }
+							  $keyboard['inline_keyboard'][] = [['text'=>'Main Page','callback_data'=>'back']];
+							  if (!isset($mid)) {
+								  if (isset($update->callback_query) && isset($update->callback_query->message->message_id)) {
+									  $mid = $update->callback_query->message->message_id;
+								  } elseif (isset($message->message_id)) {
+									  $mid = $message->message_id;
+								  } else {
+									  $mid = 1;
+								  }
+							  }
+							  // Ensure $mid is set for all usages below
+							  if (!isset($mid) || !$mid) {
+								  if (isset($update->callback_query) && isset($update->callback_query->message->message_id)) {
+									  $mid = $update->callback_query->message->message_id;
+								  } elseif (isset($message->message_id)) {
+									  $mid = $message->message_id;
+								  } else {
+									  $mid = 1;
+								  }
+							  }
+							  $bot->editMessageText([
+								  'chat_id'=>$chatId,
+								  'message_id'=>$mid,
+								  'text'=>"Accounts Control Page.",
+								  'reply_markup'=>json_encode($keyboard)
+						  ]);
 		              $config['mode'] = null;
 		              $config['mid'] = null;
 		              file_put_contents('config.json', json_encode($config));
@@ -202,8 +233,8 @@ try {
           	]);
           } elseif($data == 'grabber'){
             
-            $for = $config['for'] != null ? $config['for'] : 'حدد الحساب';
-            $count = count(explode("\n", file_get_contents($for)));
+			$for = (isset($config['for']) && $config['for'] != null) ? $config['for'] : 'حدد الحساب';
+			$count = file_exists($for) ? count(explode("\n", file_get_contents($for))) : 0;
             $bot->editMessageText([
                 'chat_id'=>$chatId,
                 'message_id'=>$mid,
@@ -334,8 +365,8 @@ try {
 							'text'=>"انتهى تخمين اليوزرات اذهب للفحص.",
 						// 	'show_alert'=>1
 						]);
-						$for = $config['for'] != null ? $config['for'] : 'Select Account';
-                        $count = count(explode("\n", file_get_contents($for)));
+						  $for = (isset($config['for']) && $config['for'] != null) ? $config['for'] : 'Select Account';
+						  $count = file_exists($for) ? count(explode("\n", file_get_contents($for))) : 0;
 						$bot->editMessageText([
                 'chat_id'=>$chatId,
                 'message_id'=>$mid,
