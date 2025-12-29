@@ -63,18 +63,19 @@ try {
           			$body = json_decode($body);
           			if(isset($body->message)){
           				if($body->message == 'challenge_required'){
-          					$bot->sendMessage([
-          							'chat_id'=>$chatId,
-          							'parse_mode'=>'markdown',
-          							'text'=>"*Error*. \n - Challenge Required"
-          					]);
-          				} else {
-          					$bot->sendMessage([
-          							'chat_id'=>$chatId,
-          							'parse_mode'=>'markdown',
-          							'text'=>"*Error*.\n - اليوزر او الرمز خاطئ"
-          					]);
-          				}
+							   $bot->sendMessage([
+								   'chat_id'=>$chatId,
+								   'parse_mode'=>'markdown',
+								   'text'=>"*Error*. \n - Challenge Required"
+							   ]);
+						       } else {
+							   $errorMsg = isset($body->message) ? $body->message : 'اليوزر او الرمز خاطئ';
+							   $bot->sendMessage([
+								   'chat_id'=>$chatId,
+								   'parse_mode'=>'markdown',
+								   'text'=>"*Error*.\n - ".$errorMsg
+							   ]);
+						       }
           			} elseif(isset($body->logged_in_user)) {
           				$body = $body->logged_in_user;
           				preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $headers, $matches);
