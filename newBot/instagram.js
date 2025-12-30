@@ -11,7 +11,7 @@ const puppeteer = require('puppeteer');
  * @returns {Promise<{browser: object, page: object}>}
  */
 async function loginInstagram(username, password, options = {}) {
-	const browser = await puppeteer.launch({ headless: true });
+	const browser = await puppeteer.launch({ headless: 'new' });
 	const page = await browser.newPage();
 	if (options.userAgent) {
 		await page.setUserAgent(options.userAgent);
@@ -28,4 +28,22 @@ async function loginInstagram(username, password, options = {}) {
 	return { browser, page, cookies };
 }
 
-module.exports = { loginInstagram };
+// Stub: Get Instagram user info
+async function getInfo(username, cookies, userAgent) {
+	// TODO: Use Puppeteer or API to fetch user info
+	return { user: username, followers: 0, following: 0, media: 0, email: '' };
+}
+
+// Stub: Get followers
+async function getFollowers(username, options = {}) {
+	// TODO: Use Puppeteer or API to fetch followers
+	return [];
+}
+
+// Stub: Get following
+async function getFollowing(username, options = {}) {
+	// TODO: Use Puppeteer or API to fetch following
+	return [];
+}
+
+module.exports = { loginInstagram, getInfo, getFollowers, getFollowing };

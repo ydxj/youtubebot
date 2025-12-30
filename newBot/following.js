@@ -9,7 +9,7 @@ async function getFollowing(username, options = {}) {
 	const results = [];
 	console.log(`Fetching following for ${username}...`);
 
-	const browser = await puppeteer.launch({ headless: true });
+	const browser = await puppeteer.launch({ headless: 'new' });
 	const page = await browser.newPage();
 	if (options.userAgent) {
 		await page.setUserAgent(options.userAgent);

@@ -3,14 +3,17 @@
 const fs = require('fs');
 const puppeteer = require('puppeteer');
 
+
+// Modernized: Scrape explore posts, then for each post, scrape comments/usernames, write to file, return usernames
 async function exploreInstagram(options = {}) {
-	// options: { session, cookies, userAgent, maxPosts }
+	// options: { cookies, userAgent, maxPosts, saveFile, telegramProgress }
 	const maxPosts = options.maxPosts || 20;
-	const results = [];
 	const url = 'https://www.instagram.com/explore/';
+	const usernames = new Set();
+	const postLinks = [];
 	console.log('Exploring Instagram...');
 
-	const browser = await puppeteer.launch({ headless: true });
+	const browser = await puppeteer.launch({ headless: 'new' });
 	const page = await browser.newPage();
 	if (options.cookies) {
 		await page.setCookie(...options.cookies);
@@ -20,37 +23,45 @@ async function exploreInstagram(options = {}) {
 	}
 
 	await page.goto(url, { waitUntil: 'networkidle2' });
-	// Wait for posts to load
 	await page.waitForSelector('article a', { timeout: 10000 });
 
-	// Scrape post links and usernames
+	// Scrape post links
 	const posts = await page.$$eval('article a', (links, max) => {
-		return links.slice(0, max).map(link => ({
-			postUrl: link.href
-		}));
+		return links.slice(0, max).map(link => link.href);
 	}, maxPosts);
+	postLinks.push(...posts);
 
-	// Optionally, fetch usernames for each post
-	for (let post of posts) {
+	// For each post, visit and scrape comments/usernames
+	for (let i = 0; i < postLinks.length; i++) {
+		const postUrl = postLinks[i];
 		try {
-			await page.goto(post.postUrl, { waitUntil: 'networkidle2' });
-			const username = await page.$eval('header a', el => el.textContent);
-			post.username = username;
-			results.push(post);
+			await page.goto(postUrl, { waitUntil: 'networkidle2' });
+			// Wait for comments to load (if any)
+			await page.waitForSelector('ul ul li', { timeout: 5000 });
+			// Scrape usernames from comments
+			const commentUsernames = await page.$$eval('ul ul li h3 a', els => els.map(a => a.textContent));
+			commentUsernames.forEach(u => usernames.add(u));
+			// Optionally, add post owner
+			const postOwner = await page.$eval('header a', el => el.textContent);
+			usernames.add(postOwner);
 		} catch (e) {
 			// Skip if error
 		}
-		if (results.length >= maxPosts) break;
+		// Optionally update Telegram with progress
+		if (options.telegramProgress) {
+			await options.telegramProgress({ current: i + 1, total: postLinks.length, usernames: usernames.size });
+		}
+		if (usernames.size > 5000) break;
 	}
 
 	await browser.close();
 
-	// Optionally save to file
+	// Write usernames to file if requested
 	if (options.saveFile) {
-		fs.writeFileSync(options.saveFile, JSON.stringify(results, null, 2));
+		fs.writeFileSync(options.saveFile, Array.from(usernames).join('\n'));
 	}
 
-	return results;
+	return Array.from(usernames);
 }
 
 module.exports = { exploreInstagram };

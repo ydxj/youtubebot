@@ -66,3 +66,30 @@ async function postInstagram(content, options = {}) {
 }
 
 module.exports = { postInstagram };
+
+/**
+ * Fetch the HTML of an Instagram post and optionally extract the post ID.
+ * @param {string} url - The Instagram post URL (e.g., https://www.instagram.com/p/CB5RaX3l6Gk/)
+ * @param {object} [options] - { userAgent }
+ * @returns {Promise<{ html: string, postId?: string }>} The HTML and (optionally) the post ID.
+ */
+async function fetchInstagramPostHtml(url, options = {}) {
+	if (!url) throw new Error('Post URL required');
+	const browser = await puppeteer.launch({ headless: 'new' });
+	const page = await browser.newPage();
+	if (options.userAgent) {
+		await page.setUserAgent(options.userAgent);
+	}
+	await page.goto(url, { waitUntil: 'networkidle2' });
+	const html = await page.content();
+	// Extract post ID from HTML (like PHP preg_match)
+	let postId = undefined;
+	const match = html.match(/"id":"(.*?)"/i);
+	if (match && match[1]) {
+		postId = match[1];
+	}
+	await browser.close();
+	return { html, postId };
+}
+
+module.exports.fetchInstagramPostHtml = fetchInstagramPostHtml;
