@@ -1,5 +1,15 @@
 {
+  "name": "newbot",
+  "version": "1.0.0",
+  "description": "Node.js Instagram bot migrated from PHP",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "MIT",
   "dependencies": {
-    "telegraf": "^4.16.3"
+    "telegraf": "^4.16.3",
+    "puppeteer": "^21.3.8"
   }
 }
