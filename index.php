@@ -13,31 +13,116 @@ function status($for){
     
 }
 function checkMail($mail){
-    echo "[checkMail] Routing email: $mail\n";
+    echo "[checkMail] Checking: $mail\n";
     flush();
     
     if(stripos($mail, 'gmail.com') !== false){
-        echo "[checkMail] -> Gmail detected\n";
-        flush();
         return checkGmail($mail);
     } elseif(preg_match('/(hotmail|outlook|live)\./i', $mail)){
-        echo "[checkMail] -> Hotmail detected\n";
-        flush();
         $url = newURL();
         return checkHotmail($url, $mail);
     } elseif(stripos($mail, 'yahoo') !== false){
-        echo "[checkMail] -> Yahoo detected\n";
-        flush();
         return checkYahoo($mail);
     } elseif(preg_match('/(mail|bk|yandex|inbox|list)\.ru/i', $mail)){
-        echo "[checkMail] -> Mail.ru detected\n";
-        flush();
         return checkRU($mail);
     } else {
-        echo "[checkMail] -> Unknown domain, assuming available\n";
+        return true;
+    }
+}
+
+// REAL Gmail checker using login endpoint
+function checkGmail($mail){
+    echo "[Gmail] Testing if exists: $mail\n";
+    flush();
+    
+    $ch = curl_init();
+    
+    // First: Get initial page to extract XSRF token
+    curl_setopt($ch, CURLOPT_URL, 'https://accounts.google.com/signin/v2/identifier');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/gmail_cookies.txt');
+    
+    $res = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    
+    if($err){
+        echo "[Gmail] Network error, allowing\n";
         flush();
         return true;
     }
+    
+    // Extract XSRF token
+    if(preg_match('/"_XSRF_TOKEN"\s*,\s*"([^"]+)"/', $res, $m)){
+        $xsrf = $m[1];
+    } else if(preg_match('/name="_xsrf_token"\s+value="([^"]+)"/', $res, $m)){
+        $xsrf = $m[1];
+    } else {
+        $xsrf = '';
+    }
+    
+    // Now check if email exists using the identifier endpoint
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://accounts.google.com/signin/v2/identifier?service=accountsettings&continue=https://myaccount.google.com&osid=1&flowName=GlifWebSignIn&flowEntry=ServiceLogin');
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/x-www-form-urlencoded',
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    ]);
+    curl_setopt($ch, CURLOPT_COOKIEFILE, '/tmp/gmail_cookies.txt');
+    curl_setopt($ch, CURLOPT_COOKIEJAR, '/tmp/gmail_cookies.txt');
+    
+    $postData = 'identifier='.$mail.'&_xsrf_token='.$xsrf;
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+    
+    $res2 = curl_exec($ch);
+    $http = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err2 = curl_error($ch);
+    curl_close($ch);
+    
+    // Analyze response
+    if($err2){
+        echo "[Gmail] Error, allowing: $err2\n";
+        flush();
+        return true;
+    }
+    
+    // Check response for existence indicators
+    if(stripos($res2, 'Could not find your Google Account') !== false || 
+       stripos($res2, 'account does not exist') !== false ||
+       stripos($res2, 'no account found') !== false){
+        echo "[Gmail] ✓ Available (not found)\n";
+        flush();
+        return true;
+    }
+    
+    if(stripos($res2, 'password') !== false || 
+       stripos($res2, 'enter your password') !== false ||
+       stripos($res2, 'verify it\'s you') !== false){
+        echo "[Gmail] ✗ Taken (account found)\n";
+        flush();
+        return false;
+    }
+    
+    // If we get HTML form asking for password = account exists
+    if(stripos($res2, '<input') !== false && stripos($res2, 'password') !== false){
+        echo "[Gmail] ✗ Taken (password form shown)\n";
+        flush();
+        return false;
+    }
+    
+    // Default safe: assume taken if unclear
+    echo "[Gmail] Unclear response, assuming taken\n";
+    flush();
+    return false;
 }
 function bot($method,$datas=[]){
     global $token;
@@ -252,63 +337,6 @@ function checkYahoo($mail){
     }
     
     return true; // Assume available if no clear "exists" signal
-}
-function checkGmail($mail){
-    $mail = trim($mail);
-    if(strpos($mail, ' ') !== false or strpos($mail, '+') !== false){
-        return false;
-    }
-    $username = preg_replace('/@.*/', '', $mail);
-    
-    echo "[Gmail] Checking: $username\n";
-    flush();
-    
-    // Try multiple endpoints for reliability
-    $endpoints = [
-        'https://accounts.google.com/accounts/CheckUsernameAvailability',
-        'https://www.google.com/accounts/CheckUsername'
-    ];
-    
-    foreach($endpoints as $url){
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Content-Type: application/x-www-form-urlencoded',
-            'Accept: */*'
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-        curl_setopt($ch, CURLOPT_ENCODING, '');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        
-        curl_setopt($ch, CURLOPT_POSTFIELDS, 'username='.$username);
-        
-        $res = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $err = curl_error($ch);
-        curl_close($ch);
-        
-        if(!$err && $httpCode < 400){
-            echo "[Gmail] Got response from $url\\n";
-            flush();
-            
-            // Check if available in response
-            if(!empty($res) && (strpos($res, 'available') !== false || strpos($res, '"true"') !== false)){
-                echo "[Gmail] ✓ Available\\n";
-                flush();
-                return true;
-            }
-        }
-    }
-    
-    echo "[Gmail] ✗ Not available or check failed\\n";
-    flush();
-    return false;
 }
 function checkHotmail($url, $mail){
     $mail = trim($mail);
