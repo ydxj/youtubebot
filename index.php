@@ -263,49 +263,52 @@ function checkGmail($mail){
     echo "[Gmail] Checking: $username\n";
     flush();
     
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'https://accounts.google.com/_/signup/webusernameavailability?hl=en&_reqid='.rand(100000,999999).'&rt=j');
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-        'Content-Type: application/x-www-form-urlencoded;charset=UTF-8',
-        'Accept: */*',
-        'Origin: https://accounts.google.com',
-        'Referer: https://accounts.google.com/'
-    ]);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
-    curl_setopt($ch, CURLOPT_ENCODING, '');
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    // Try multiple endpoints for reliability
+    $endpoints = [
+        'https://accounts.google.com/accounts/CheckUsernameAvailability',
+        'https://www.google.com/accounts/CheckUsername'
+    ];
     
-    $fields = 'f.req=' . urlencode('["'.$username.'",1]') . '&';
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+    foreach($endpoints as $url){
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Content-Type: application/x-www-form-urlencoded',
+            'Accept: */*'
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_ENCODING, '');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        
+        curl_setopt($ch, CURLOPT_POSTFIELDS, 'username='.$username);
+        
+        $res = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err = curl_error($ch);
+        curl_close($ch);
+        
+        if(!$err && $httpCode < 400){
+            echo "[Gmail] Got response from $url\\n";
+            flush();
+            
+            // Check if available in response
+            if(!empty($res) && (strpos($res, 'available') !== false || strpos($res, '"true"') !== false)){
+                echo "[Gmail] ✓ Available\\n";
+                flush();
+                return true;
+            }
+        }
+    }
     
-    $res = curl_exec($ch);
-    $err = curl_error($ch);
-    curl_close($ch);
-    
-    echo "[Gmail] Request completed\n";
+    echo "[Gmail] ✗ Not available or check failed\\n";
     flush();
-    
-    if($err){
-        echo "Gmail check error: $err\n";
-        flush();
-        return false; // On error, assume taken to avoid false positives
-    }
-    
-    if(empty($res)){
-        return false;
-    }
-    
-    // Google returns "USERNAME_UNAVAILABLE" if taken, "ok" or similar if available
-    if(stripos($res, 'USERNAME_UNAVAILABLE') !== false || stripos($res, '"gms.GNSUe",2') !== false){
-        return false; // Email exists
-    }
-    
-    return true; // Available
+    return false;
 }
 function checkHotmail($url, $mail){
     $mail = trim($mail);

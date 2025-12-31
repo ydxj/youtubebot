@@ -158,21 +158,19 @@ foreach ($users as $user) {
                         $following = $info['ff'];
                         $media = $info['m'];
                         $true += 1;
-                                bot('sendMessage', ['disable_web_page_preview' => true, 'chat_id' => $id, 'text' => "تم صيد حساب جديد  ✅\n━━━━━━━━━━━━\n.❖. اليوزر : [$usern](instagram.com/$usern)\n.❖.  الايميل : [$mail]\n. عدد المتابعين : $follow\n.❖. عدد المتابعهم : $following\n.❖. عدد المنشورات : $media\n━━━━━━━━━━━━\nCH :- [@av_vva]",
-                                
-                                'parse_mode'=>'markdown']);
+                                bot('sendMessage', ['disable_web_page_preview' => true, 'chat_id' => $id, 'text' => "🎯 *صيد حساب جديد متاح* ✅\n\n📱 *اليوزر:* [$usern](https://instagram.com/$usern/)\n📧 *الإيميل:* `$mail`\n👥 *المتابعون:* $follow\n🔗 *يتابع:* $following\n📸 *المنشورات:* $media\n\n━━━━━━━━━━━━━━━━━━\n✨ *المصدر:* [@omarzerhouni](https://t.me/omarzerhouni)", 'parse_mode'=>'markdown']);
                                 
                                 bot('editMessageReplyMarkup',[
                                     'chat_id'=>$id,
                                     'message_id'=>$edit->result->message_id,
                                     'reply_markup'=>json_encode([
                                         'inline_keyboard'=>[
-                                            [['text'=>'Checked: '.$i,'callback_data'=>'fgf']],
-                                            [['text'=>'On User: '.$user,'callback_data'=>'fgdfg']],
-                                            [['text'=>"Gmail: $gmail",'callback_data'=>'dfgfd'],['text'=>"Yahoo: $yahoo",'callback_data'=>'gdfgfd']],
-                                            [['text'=>'MailRu: '.$mailru,'callback_data'=>'fgd'],['text'=>'Hotmail: '.$hotmail,'callback_data'=>'ghj']],
-                                            [['text'=>'True: '.$true,'callback_data'=>'gj']],
-                                            [['text'=>'False: '.$false,'callback_data'=>'dghkf']]
+                                            [['text'=>'✅ تم الفحص: '.$i,'callback_data'=>'fgf']],
+                                            [['text'=>'👤 المستخدم الحالي: '.$user,'callback_data'=>'fgdfg']],
+                                            [['text'=>'💌 Gmail: '.$gmail,'callback_data'=>'dfgfd'],['text'=>'📨 Yahoo: '.$yahoo,'callback_data'=>'gdfgfd']],
+                                            [['text'=>'🇷🇺 Mail.ru: '.$mailru,'callback_data'=>'fgd'],['text'=>'🔷 Hotmail: '.$hotmail,'callback_data'=>'ghj']],
+                                            [['text'=>'✨ متاح: '.$true,'callback_data'=>'gj']],
+                                            [['text'=>'❌ غير متاح: '.$false,'callback_data'=>'dghkf']]
                                         ]
                                     ])
                                 ]);
