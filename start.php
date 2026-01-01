@@ -130,6 +130,7 @@ foreach ($users as $user) {
                                 $follow = $info['f'];
                                 $following = $info['ff'];
                                 $media = $info['m'];
+                                $true += 1;
                                 bot('sendMessage', ['disable_web_page_preview' => true, 'chat_id' => $id, 'text' => "تم صيد حساب جديد  ✅\n━━━━━━━━━━━━\n.❖. اليوزر : [$usern](instagram.com/$usern)\n.❖.  الايميل : [$mail]\n. عدد المتابعين : $follow\n.❖. عدد المتابعهم : $following\n.❖. عدد المنشورات : $media\n━━━━━━━━━━━━\nCH :- [@av_vva]",
                                 
                                 'parse_mode'=>'markdown']);
@@ -148,19 +149,21 @@ foreach ($users as $user) {
                                         ]
                                     ])
                                 ]);
-                                $true += 1;
                             // } else {
                             //     echo "Filter , ".$mail.PHP_EOL;
                             // }
                             
                         } else {
                           echo "No Rest $mail\n";
+                          $false += 1;
                         }
                     } else {
                         echo "Not Vaild 2 - $mail\n";
+                        $false += 1;
                     }
         } else {
           echo "BlackList - $mail\n";
+          $false += 1;
         }
     } else {
         echo "Not Bussines - $user\n";
