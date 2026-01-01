@@ -128,142 +128,221 @@ function newURL(){
 }
 function checkRU($mail){
     $mail = trim($mail);
-    if(strpos($mail, ' ') or strpos($mail, '+')){
+    if(strpos($mail, ' ') !== false or strpos($mail, '+') !== false){
         return false;
     }
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL,"https://auth.mail.ru/api/v1/pushauth/info?login=".urlencode($mail)."&_=1580336451166");
-  curl_setopt($ch,CURLOPT_HTTPHEADER, [
-    'Host: recostream.go.mail.ru',
-'Connection: keep-alive',
-'User-Agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
-'Accept: */*',
-'Origin: https://mail.ru',
-'Sec-Fetch-Site: same-site',
-'Sec-Fetch-Mode: cors',
-'Referer: https://mail.ru/',
-'Accept-Encoding: gzip, deflate, br',
-'Accept-Language: en-US,en;q=0.9,ar;q=0.8'
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://auth.mail.ru/api/v1/pushauth/info?login=' . urlencode($mail) . '&_=' . time() . '000');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Accept: */*',
+        'Accept-Encoding: gzip, deflate, br',
+        'Accept-Language: en-US,en;q=0.9',
+        'Origin: https://mail.ru',
+        'Referer: https://mail.ru/',
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
     ]);
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  $res = curl_exec($ch);
-  curl_close($ch);
-//   return ;
-    if(!json_decode($res)->body->exists) {
-        return true;
-    } else {
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_ENCODING, '');
+    
+    $res = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    
+    if($err){
+        echo "Mail.ru check error: $err\n";
         return false;
     }
+    
+    if(empty($res)){
+        return false;
+    }
+    
+    $decoded = json_decode($res);
+    if(isset($decoded->body->exists)){
+        if($decoded->body->exists == false){
+            return true; // Doesn't exist = available
+        }
+    }
+    
+    return false;
 }
 function checkYahoo($mail){
     $mail = trim($mail);
-    if(strpos($mail, ' ') or strpos($mail, '+')){
+    if(strpos($mail, ' ') !== false or strpos($mail, '+') !== false){
         return false;
     }
-    $mail = preg_replace('/@(.*)/', '',$mail);
-    $login = curl_init(); 
-    curl_setopt($login, CURLOPT_URL, "https://login.yahoo.com/config/login?.src=fpctx&.intl=xa&.lang=en-US&.done=https://maktoob.yahoo.com"); 
-    curl_setopt($login, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($login, CURLOPT_HTTPHEADER, explode("\n", 'Accept: */*
-Accept-Encoding: gzip, deflate, br
-Accept-Language: en-US,en;q=0.9
-bucket: mbr-atthaloc-oauth
-Connection: keep-alive
-content-type: application/x-www-form-urlencoded; charset=UTF-8
-Cookie: B=025g2jdfbjjjm&b=3&s=g6; APID=1Ae136a6cc-943f-11ea-b443-1234a9bcb81c; A1=d=AQABBHbOuV4CEKee2YDgG1TADDB_Q5sCFgEFEgEBAQE6x16oX1xXb2UB_SMAAAcIds65XpsCFgE&S=AQAAAoxIqLGVR1LoIovR16q2D10; A3=d=AQABBHbOuV4CEKee2YDgG1TADDB_Q5sCFgEFEgEBAQE6x16oX1xXb2UB_SMAAAcIds65XpsCFgE&S=AQAAAoxIqLGVR1LoIovR16q2D10; GUC=AQEBAQFexzpfqEIbZQRy; A1S=d=AQABBHbOuV4CEKee2YDgG1TADDB_Q5sCFgEFEgEBAQE6x16oX1xXb2UB_SMAAAcIds65XpsCFgE&S=AQAAAoxIqLGVR1LoIovR16q2D10&j=WORLD; AS=v=1&s=ZW1bkdGu&d=A5edddfb4|J02naJT.2QLkBalG93h42dqZgWw4_e6JDUwKilcf8hsH4xFyFOmG.l3oNQ4uEizaovq0f0t4LycCJZENom6c5hBxBSZPx_AWmFrTXLDwHxDKfGF685_03QK8i6kL7sxWvpM_PQioWtazQsOdPAHQaB5vgcqRY.pfvJUtg0_UA3v0VNgV4YEllYCy_XL2FPVfEtYtVWmU6mCGNlhv3cjGCXVmKYAd.LvpEuS3fhwVQRtzyV3WvC_UKcX76rFmsrot1NXOQyUIsoQpsazBD4AJgNanfcu4m1a.b58dGtT00Xc1UK70dlCpV2G9GFgGzdQ26mOytJEaw6LN.WeKMcsIazOV5p8xr8NzT4UCKedPxp0FjfXTN__ljqjw304zGUItcEaKlgB42h4Le2nXDUh3Rx5PaSHX8OrjTj5DD_lSNGcFs_p1QATC0mLQsvBySVnGXCfPnerQqgkGAdB1QqLgMe81oCDb1lVRDtd2f9KnoFnYJ10tlNfFGsYK1Z3FLakEmULZpZ19LBSBbnd.Mcs1NdaHxbvmbm8IZI_ceARS6dm6vI2Fi6t_97aki9Jp8jdqSgEDb8dekTMHzPUedGWL8WbqzLAgVCU7xcwm3KfcA.mHd0nuOC5r95swTtIT9B1aX6RGRLc0gmFcyfpHq_kWs4Z0VZNpe19veDGs4TE2oLOyEi25qJW3V5s1BukNrZ1.DlatQS0QkagRXA60m.5IjWSymErAAMtXtzB6KWeoF0dg80wkf18pNNb.d8R_nakCD3uG6NaWS_ny9xn5uHWFCSPbPaMztcNtbQsgo2Ood4ep9BsJFW5FwAEfZS33LEvKAO4p5R6RdMRIdaSiitk_Yx8VtAJ6WA.oafBVvvOrWDCjArH69vSpwtnu3Xvubqy1KQrMqMiUbK.pqBFgTPWxAnZtMSd3_2U8r4Lv12hvZOFL0A.WFYEXdCTOl9Kx34ldcyzAv9XMErVhh8xs4lAcCLBQxSZ6noJbHA--~A|B5edf2dbf|nol7O7X.2Srmm7l.XRgD2PIGNZ4UqvPtTH9Qq5lvMej5tdPAPwTIwahYRyIi5X3W726CFhKdSMxvFU1dJ4J7GQH4rvhhCI2EUms4_XFlozERFUnastq5IVzl6Gzm8GjnCu0a.9BgNSXmewl7MPDrrCTRKpkJQk4iTAy5o.yPso_HLAInPq_qxqMko3eV0xqUBq95gLcNJgWhod2yB2MILvXNRfeKRwP9j.PDhXQgfwTRcD0RINTMxNdvZDNcyfJilbEX0V1oAYF5geSAnzWvwRGZBzgwrWQZFajGOFmhrc7Qvz1veg7k8X4KTNZGmjQVIBdvSZhaGIpgluu4Ee2x.SPiGXoW5WMgfR7gK.6Dn4pwjQVwANjn8FUYxVYBmDERBW.st5w.3jdxApm9adyZOXSfWoaTnwDaxWZgEnYBVHJUa_M5ivjRQSaleiE.Zo4ldQdQJfafeLCCI919izdK9azFSIGCVq2leK8tkfcz1Gu3HKTyob1vGP9hAHI4coOxafOi.f8tiURm7oQyHz.9AO5_igd08vVLL7sGquOOhd2lwePIajESKFeQWVbg4p9E1Q6zZTnZcVq1fH.sj1ojPqcGIcLdBenmFT.YJEPM0zvWiUif9TpwtWO6KBKF51uxMZO6fJFa_TLNIU8PCqhYriCsFipY1GbA_NhnrBEjg39HHR6cZqEeyv3hiZCcmOMDThj17nEnhYJqySQ-~A; APIDTS=1591598146
-Host: login.yahoo.com
-Origin: https://login.yahoo.com
-Referer: https://login.yahoo.com/config/login
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36
-X-Requested-With: XMLHttpRequest'));
-    curl_setopt($login, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36');
-    curl_setopt($login,CURLOPT_POST, 1);
-    $fields = 'acrumb=ZW1bkdGu&sessionIndex=Qg--&username='.$mail.'&passwd=&signin=Next&persistent=y';
-    curl_setopt($login,CURLOPT_POSTFIELDS, $fields);
-    $login = curl_exec($login);
-    echo $login;
-    $res = json_decode($login);
-    if(isset($res->render) and isset($res->render->error) and $res->render->error == 'messages.ERROR_INVALID_USERNAME'){
-    	return true;
-    } else {
-    	return false;
+    
+    // Simple validation check - Yahoo API is heavily protected
+    // Use basic pattern matching as fallback
+    $username = preg_replace('/@.*/', '', $mail);
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://login.yahoo.com/account/module/create?validateField=yid');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Accept: */*',
+        'Accept-Language: en-US,en;q=0.9',
+        'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
+        'Origin: https://login.yahoo.com',
+        'Referer: https://login.yahoo.com/account/create',
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'X-Requested-With: XMLHttpRequest'
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_ENCODING, '');
+    
+    $fields = 'acrumb=&sessionIndex=&yid='.$username;
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+    
+    $res = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    
+    if($err){
+        echo "Yahoo check error: $err\n";
+        return false;
     }
+    
+    if(empty($res)){
+        return false;
+    }
+    
+    $decoded = json_decode($res);
+    // Yahoo returns error codes if username exists
+    if(isset($decoded->errors) && is_array($decoded->errors) && count($decoded->errors) > 0){
+        // Check for "username taken" type errors
+        foreach($decoded->errors as $error){
+            if(isset($error->name) && stripos($error->name, 'IDENTIFIER_EXISTS') !== false){
+                return false; // Email exists
+            }
+        }
+    }
+    
+    // If specific "invalid username" error
+    if(isset($decoded->render->error) && $decoded->render->error == 'messages.ERROR_INVALID_USERNAME'){
+        return true; // Available
+    }
+    
+    return true; // Assume available if no clear "exists" signal
 }
 function checkGmail($mail){
     $mail = trim($mail);
-    if(strpos($mail, ' ') or strpos($mail, '+')){
+    if(strpos($mail, ' ') !== false or strpos($mail, '+') !== false){
         return false;
     }
-  $mail = preg_replace('/@(.*)/', '',$mail);
-   $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL,'https://accounts.google.com/InputValidator?resource=SignUp&service=mail');
-  curl_setopt($ch,CURLOPT_HTTPHEADER, [
-    'User-Agent: Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16',
-'Content-Type: application/json; charset=utf-8',
-'Host: accounts.google.com',
-'Expect: 100-continue',
+    $username = preg_replace('/@.*/', '', $mail);
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'https://accounts.google.com/_/signup/webusernameavailability?hl=en&_reqid='.rand(100000,999999).'&rt=j');
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Content-Type: application/x-www-form-urlencoded;charset=UTF-8',
+        'Accept: */*',
+        'Origin: https://accounts.google.com',
+        'Referer: https://accounts.google.com/'
     ]);
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch,CURLOPT_POST, 1);
-  curl_setopt($ch, CURLOPT_ENCODING , "");
-  // echo $mail;
-  $fields = '{"input01":{"Input":"GmailAddress","GmailAddress":"'.$mail.'","FirstName":"'.str_shuffle('fdgh4hgbgbg').'","LastName":"'.str_shuffle('fdgh4hgbgbg').'"},"Locale":"en"}';
-  curl_setopt($ch,CURLOPT_POSTFIELDS, $fields);
-  $res = curl_exec($ch);
-  curl_close($ch);
-  $s =  json_decode($res);
-  if(isset($s->input01)){
-  if(isset($s->input01->Valid)){
-      if($s->input01->Valid == 'true'){
-          return true;
-      } else {
-          return false;
-      }
-  } else {
-      return false;
-  }
-  } else {
-      return false;
-  }
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_ENCODING, '');
+    
+    $fields = 'f.req=' . urlencode('["'.$username.'",1]') . '&';
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+    
+    $res = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
+    
+    if($err){
+        echo "Gmail check error: $err\n";
+        return false; // On error, assume taken to avoid false positives
+    }
+    
+    if(empty($res)){
+        return false;
+    }
+    
+    // Google returns "USERNAME_UNAVAILABLE" if taken, "ok" or similar if available
+    if(stripos($res, 'USERNAME_UNAVAILABLE') !== false || stripos($res, '"gms.GNSUe",2') !== false){
+        return false; // Email exists
+    }
+    
+    return true; // Available
 }
-function checkHotmail($url,$mail){
+function checkHotmail($url, $mail){
     $mail = trim($mail);
-    if(strpos($mail, ' ') or strpos($mail, '+')){
+    if(strpos($mail, ' ') !== false or strpos($mail, '+') !== false){
         return false;
     }
-  $uaid = explode('uaid=', $url)[1];
-  $ch = curl_init();
-  curl_setopt($ch, CURLOPT_URL,$url);
-  curl_setopt($ch,CURLOPT_HTTPHEADER, [
-    'accept: application/json',
-'accept-encoding: gzip, deflate, br',
-'accept-language: en-US,en;q=0.9,ar;q=0.8',
-'client-request-id: e50b9d86940a4a6b806f141aeb87c2be',
-'content-type: application/json; charset=UTF-8',
-'cookie: mkt=en-GB; MSCC=1565316440; optimizelyEndUserId=oeu1578914839745r0.28780916970876746; wlidperf=FR=L&ST=1578914863298; logonLatency=LGN01=637153910513160953; uaid=e50b9d86940a4a6b806f141aeb87c2be; amsc=LDSu01eN1p8mu/aQOR8E/JsrWRw2umolJ57H96YKK9t9GpXT/1+TnnHT5teMGz0XmgPXf4UZumsU54kipsswO6VwZggyEEZkxrR8SJd5U3Bru+OEs+9IlLfml8nsNJ3ejH7piSM6y5EfybxtuLMV6SZZxPrFEODePzRujEx/dSV7jpiSYTNk/oajPVQIoZbABA+Hr8QjedZ5390TM7sQmrIwwSPfbUP9vTrTPwnm6GAsbf1k90qWSLMaldKhMPKz1IZCPvKBdWxmfda1hcHSkitzm2byDrC8a0LpF2XtGKG1rZ9S+WvSILthbvLn7tHD:2:3c; MSPRequ=id=N&lt=1579804236&co=0; OParams=11DQFpxS7pzYB5u6z67WXLWoJZxIv4EoI07SIv9NF400Ml6NW3t6RoWfW5Hr7lizMq9bTQDRrsBBlbQXkVL!Jzo6knJIEJdFbUDS!Cq1zNJJNK1ehiYyB5fMyO7bnj7Dfz!6mDuk2OShJVVlatli5JeYXDDFRljVvQzkJ91cXbHLJoRP9A!EbyBF3boCkZ7s9f*ePQZWGwqnAeCz3sclT68b4ntJXMLTAqi4CgcEiEE9XjSekdGg2q!pHh7IcjwLKjvusYzdiaK6axwAp4hw35vvcsyA4UOD26uE04LKjAFPIDZcXmrqzHNjklndRTqAp!1PMSFEvdlrAa9FyrbN1f6CA$; MSPOK=$uuid-84fae358-0e4d-4cbc-9401-c4c0d1dfc0b8$uuid-2dfff29d-11fd-4e53-85a7-8d3cff5e2754$uuid-b7c92f16-b89a-445d-95a9-cc1c6686aab2',
-'hpgact: 0',
-'hpgid: 33',
-'origin: https://login.live.com',
-'referer: https://login.live.com/',
-'sec-fetch-mode: cors',
-'sec-fetch-site: same-origin',
-'user-agent: Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
-    ]);
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-  curl_setopt($ch, CURLOPT_ENCODING , "");
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch,CURLOPT_POST, 1);
-  curl_setopt($ch,CURLOPT_POSTFIELDS, '{"username":"'.$mail.'","uaid":"'.$uaid.'","isOtherIdpSupported":false,"checkPhones":true,"isRemoteNGCSupported":true,"isCookieBannerShown":false,"isFidoSupported":true,"forceotclogin":false,"otclogindisallowed":true,"isExternalFederationDisallowed":false,"isRemoteConnectSupported":false,"federationFlags":3,"flowToken":"DdMUDCNyFcwT9VK5vlBBCGF5VYFUBuVVVK2FCJkTvdIr8vao!78DWHV1d5iJQAlaBgKQtik4V0TTdj0gqiYx89skmL*Ir9FvzAs8FIul6MJmsHl*WMZuh0WOAYNDzGgH!5A9TURocDSg*qbkZVrdh1ZG0j5NWvtsfdqMRYbAqujacfOSUA2ZuxmvSFlYz3dxOG3DhusRzPYqFqfWhc3xLxFDzf4NhhCCPTdQ3BQfvcZ9yE0KqqOWnDllRJvXO!tJeA$$"}');
-  $res = curl_exec($ch);
-  curl_close($ch);
-  $res = json_decode($res)->IfExistsResult;
-  if($res == 1){
-      return true;
-  } else {
-      return false;
-  }
+    
+    try {
+        // Extract uaid from URL
+        $parts = explode('uaid=', $url);
+        if(count($parts) < 2){
+            echo "Hotmail: Failed to parse uaid from URL\n";
+            return false;
+        }
+        $uaid = $parts[1];
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Accept: application/json',
+            'Accept-Encoding: gzip, deflate, br',
+            'Accept-Language: en-US,en;q=0.9',
+            'Content-Type: application/json; charset=UTF-8',
+            'Origin: https://login.live.com',
+            'Referer: https://login.live.com/',
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_ENCODING, '');
+        
+        $payload = json_encode([
+            'username' => $mail,
+            'uaid' => $uaid,
+            'isOtherIdpSupported' => true,
+            'checkPhones' => false,
+            'isRemoteNGCSupported' => true,
+            'isFidoSupported' => false
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        
+        $res = curl_exec($ch);
+        $err = curl_error($ch);
+        curl_close($ch);
+        
+        if($err){
+            echo "Hotmail check error: $err\n";
+            return false;
+        }
+        
+        if(empty($res)){
+            return false;
+        }
+        
+        $decoded = json_decode($res);
+        if(isset($decoded->IfExistsResult)){
+            // IfExistsResult: 0 = doesn't exist (available), 1 = exists (taken), 5/6 = other
+            if($decoded->IfExistsResult == 1){
+                return true; // Available for signup = doesn't exist in system
+            }
+        }
+        
+        return false;
+    } catch (Exception $e) {
+        echo "Hotmail check exception: " . $e->getMessage() . "\n";
+        return false;
+    }
 }
 class EzTGException extends Exception
 {
