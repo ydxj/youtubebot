@@ -44,7 +44,13 @@ $useragent = $accounts[$screen]['useragent'];
 $users = explode("\n", file_get_contents($screen));
 $users = array_filter(array_map('trim', $users)); // Remove empty lines
 
-// Debug
+// Debug to file
+$debugLog = 'start_debug.log';
+file_put_contents($debugLog, "=== Starting check ===\n", FILE_APPEND);
+file_put_contents($debugLog, "Account: $screen\n", FILE_APPEND);
+file_put_contents($debugLog, "Total users: " . count($users) . "\n", FILE_APPEND);
+file_put_contents($debugLog, "Cookies length: " . strlen($cookies) . "\n", FILE_APPEND);
+
 echo "Account: $screen\n";
 echo "Total users to check: " . count($users) . "\n";
 echo "Cookies length: " . strlen($cookies) . "\n";
@@ -75,17 +81,28 @@ $edit = bot('sendMessage',[
 ]);
 $se = 100;
 $editAfter = 50;
+
+file_put_contents($debugLog, "Starting foreach loop...\n", FILE_APPEND);
+
 foreach ($users as $user) {
     $user = trim($user);
     if(empty($user)) continue; // Skip empty usernames
     
+    file_put_contents($debugLog, "Checking user: $user\n", FILE_APPEND);
     echo "Checking user: $user\n";
     
-    $info = getInfo($user, $cookies, $useragent);
-    
-    echo "Info result: " . ($info ? "Found" : "False") . "\n";
-    if($info && isset($info['mail'])){
-        echo "Email found: " . $info['mail'] . "\n";
+    try {
+        $info = getInfo($user, $cookies, $useragent);
+        
+        file_put_contents($debugLog, "Info result: " . ($info ? json_encode($info) : "False") . "\n", FILE_APPEND);
+        echo "Info result: " . ($info ? "Found" : "False") . "\n";
+        
+        if($info && isset($info['mail'])){
+            file_put_contents($debugLog, "Email found: " . $info['mail'] . "\n", FILE_APPEND);
+            echo "Email found: " . $info['mail'] . "\n";
+        }
+    } catch (Exception $e) {
+        file_put_contents($debugLog, "Error: " . $e->getMessage() . "\n", FILE_APPEND);
     }
     
     $i++; // Increment counter for each user checked
