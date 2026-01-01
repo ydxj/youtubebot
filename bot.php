@@ -87,13 +87,43 @@ try {
           				file_put_contents('debug_login.txt', "SUCCESS: logged_in_user found!\n", FILE_APPEND);
           				
           				$body = $body->logged_in_user;
-          				preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $headers, $matches);
-								  $CookieStr = "";
-								  foreach($matches[1] as $item) {
-								      $CookieStr .= $item."; ";
-								  }
-								  
-								  file_put_contents('debug_login.txt', "Cookies: " . $CookieStr . "\n", FILE_APPEND);
+          				
+          				// Instagram now uses ig-set-* headers instead of Set-Cookie
+          				$CookieStr = "";
+          				
+          				// Extract ig-set-x-mid
+          				if(preg_match('/ig-set-x-mid:\s*([^\r\n]+)/i', $headers, $match)){
+          					$CookieStr .= "mid=" . trim($match[1]) . "; ";
+          				}
+          				
+          				// Extract ig-set-ig-u-ds-user-id
+          				if(preg_match('/ig-set-ig-u-ds-user-id:\s*([^\r\n]+)/i', $headers, $match)){
+          					$CookieStr .= "ds_user_id=" . trim($match[1]) . "; ";
+          				}
+          				
+          				// Extract sessionid from ig-set-authorization
+          				if(preg_match('/ig-set-authorization:\s*Bearer\s+IGT:2:([^\r\n]+)/i', $headers, $match)){
+          					$token = trim($match[1]);
+          					$decoded = json_decode(base64_decode($token));
+          					if($decoded && isset($decoded->sessionid)){
+          						$CookieStr .= "sessionid=" . $decoded->sessionid . "; ";
+          					}
+          				}
+          				
+          				// Extract ig-set-ig-u-rur (if present)
+          				if(preg_match('/ig-set-ig-u-rur:\s*([^\r\n]+)/i', $headers, $match)){
+          					$rur = trim($match[1]);
+          					if(!empty($rur)){
+          						$CookieStr .= "rur=" . $rur . "; ";
+          					}
+          				}
+          				
+          				// Extract csrftoken from ig-set-www-claim
+          				if(preg_match('/x-ig-set-www-claim:\s*hmac\.([^\r\n]+)/i', $headers, $match)){
+          					$CookieStr .= "csrftoken=" . trim($match[1]) . "; ";
+          				}
+          				
+          				file_put_contents('debug_login.txt', "Cookies: " . $CookieStr . "\n", FILE_APPEND);
 								  
           				$account = ['cookies'=>$CookieStr,'useragent'=>'Instagram 316.0.0.38.120 Android (30/11; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100; en_US; 541974943)'];
           				
@@ -466,7 +496,12 @@ try {
           	  $config['for'] = $data[1];
           	  file_put_contents('config.json',json_encode($config));
               $for = $config['for'] != null ? $config['for'] : 'Select';
-              $count = count(explode("\n", file_get_contents($for)));
+              // Check if file exists before trying to read it
+              if(file_exists($for) && is_file($for)){
+                  $count = count(explode("\n", file_get_contents($for)));
+              } else {
+                  $count = 0;
+              }
               $bot->editMessageText([
                 'chat_id'=>$chatId,
                 'message_id'=>$mid,
