@@ -56,11 +56,18 @@ try {
           	if($config['mode'] != null){
           		$mode = $config['mode'];
           		if($mode == 'addL'){
-          			$ig = new ig(['file'=>'','account'=>['useragent'=>'Instagram 27.0.0.7.97 Android (23/6.0.1; 640dpi; 1440x2392; LGE/lge; RS988; h1; h1; en_US)']]);
+          			$ig = new ig(['file'=>'','account'=>['useragent'=>'Instagram 316.0.0.38.120 Android (30/11; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100; en_US; 541974943)']]);
           			list($user,$pass) = explode(':',$text);
           			list($headers,$body) = $ig->login($user,$pass);
-          			// echo $body;
+          			
+          			// Debug: Log the response
+          			file_put_contents('debug_login.txt', "Headers:\n" . print_r($headers, true) . "\n\nBody:\n" . $body . "\n\n", FILE_APPEND);
+          			
           			$body = json_decode($body);
+          			
+          			// Debug: Log parsed body
+          			file_put_contents('debug_login.txt', "Parsed Body:\n" . print_r($body, true) . "\n\n", FILE_APPEND);
+          			
           			if(isset($body->message)){
           				if($body->message == 'challenge_required'){
 							   $bot->sendMessage([
@@ -77,21 +84,42 @@ try {
 							   ]);
 						       }
           			} elseif(isset($body->logged_in_user)) {
+          				file_put_contents('debug_login.txt', "SUCCESS: logged_in_user found!\n", FILE_APPEND);
+          				
           				$body = $body->logged_in_user;
           				preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $headers, $matches);
 								  $CookieStr = "";
 								  foreach($matches[1] as $item) {
 								      $CookieStr .= $item."; ";
 								  }
-          				$account = ['cookies'=>$CookieStr,'useragent'=>'Instagram 27.0.0.7.97 Android (23/6.0.1; 640dpi; 1440x2392; LGE/lge; RS988; h1; h1; en_US)'];
+								  
+								  file_put_contents('debug_login.txt', "Cookies: " . $CookieStr . "\n", FILE_APPEND);
+								  
+          				$account = ['cookies'=>$CookieStr,'useragent'=>'Instagram 316.0.0.38.120 Android (30/11; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100; en_US; 541974943)'];
           				
-          				$accounts[$text] = $account;
-          				file_put_contents('accounts.json', json_encode($accounts));
+          				// Re-read accounts.json to get the latest data
+          				$accounts = json_decode(file_get_contents('accounts.json'),1);
+          				if(!is_array($accounts)){
+          					$accounts = [];
+          				}
+          				
+          				file_put_contents('debug_login.txt', "Before save - accounts count: " . count($accounts) . "\n", FILE_APPEND);
+          				
+          				$accounts[$user] = $account;
+          				
+          				file_put_contents('debug_login.txt', "After adding - accounts count: " . count($accounts) . "\n", FILE_APPEND);
+          				file_put_contents('debug_login.txt', "Saving account with key: " . $user . "\n", FILE_APPEND);
+          				
+          				$saveResult = file_put_contents('accounts.json', json_encode($accounts, JSON_PRETTY_PRINT));
+          				
+          				file_put_contents('debug_login.txt', "Save result: " . $saveResult . " bytes written\n", FILE_APPEND);
+          				file_put_contents('debug_login.txt', "Accounts.json content: " . file_get_contents('accounts.json') . "\n\n", FILE_APPEND);
+          				
           				$mid = $config['mid'];
           				$bot->sendMessage([
           				      'parse_mode'=>'markdown',
           							'chat_id'=>$chatId,
-          							'text'=>"*تم اضافة الحساب الى الاداة.*\n _Username_ : [$user])(instagram.com/$user)\n_Account Name_ : _{$body->full_name}_",
+          							'text'=>"*تم اضافة الحساب الى الاداة.*\n _Username_ : [$user](https://instagram.com/$user)\n_Account Name_ : _{$body->full_name}_",
 												'reply_to_message_id'=>$mid		
           					]);
 						  $keyboard = ['inline_keyboard'=>[

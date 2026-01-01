@@ -30,8 +30,9 @@ $posts = [];
 							'Host: i.instagram.com',
 							'Connection: keep-alive',
 							'X-IG-Connection-Type: WIFI',
-							'X-IG-Capabilities: 3Ro=',
-							'Accept-Language: ar-AE',
+						'X-IG-Capabilities: 3brTv10=',
+						'x-ig-app-id: 567067343352427',
+						'Accept-Language: en-US',
 							'Cookie: '.$accounts[$file]['cookies'],
 							'User-Agent: '.$accounts[$file]['useragent']
 					));
@@ -53,12 +54,13 @@ foreach($posts as $post){
 	curl_setopt($ch, CURLOPT_URL, "https://i.instagram.com/api/v1/media/".$post."/likers/");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-	    'x-ig-capabilities: 3w==',
+	    'x-ig-capabilities: 3brTv10=',
+	    'x-ig-app-id: 567067343352427',
 	    'host: i.instagram.com',
-	    'X-CSRFToken: missing',
-	    'X-Instagram-AJAX: 1',
-	    'Content-Type: application/x-www-form-urlencoded',
-	    'X-Requested-With: XMLHttpRequest',
+	    'accept-language: en-US',
+	    'X-IG-Connection-Type: WIFI',
+	    'X-IG-Capabilities: 3brTv10=',
+	    'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
 	    'Cookie: '.$accounts[$file]['cookies'],
 			'User-Agent: '.$accounts[$file]['useragent'],
 	    'Connection: keep-alive'

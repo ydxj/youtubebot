@@ -43,20 +43,22 @@ return json_decode($res);
 function inInsta($mail){
     $mail = strtolower($mail);
   $search = curl_init(); 
+  $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x', mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000, mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
 curl_setopt($search, CURLOPT_URL, "https://i.instagram.com/api/v1/users/lookup/"); 
 curl_setopt($search, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($search, CURLOPT_ENCODING , "");
 curl_setopt($search, CURLOPT_HTTPHEADER, explode("\n", 'Host: i.instagram.com
 Connection: keep-alive
 X-IG-Connection-Type: WIFI
-X-IG-Capabilities: 3Ro=
+X-IG-Capabilities: 3brTv10=
+x-ig-app-id: 567067343352427
 Accept-Language: en-US
 Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-User-Agent: Instagram 9.7.0 Android (28/9; 420dpi; 1080x2131; samsung; SM-A505F; a50; exynos9610; en_US)
+User-Agent: Instagram 316.0.0.38.120 Android (30/11; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100; en_US; 541974943)
 Accept-Encoding: gzip, deflate
 t'));
 curl_setopt($search,CURLOPT_POST, 1);
-$fields = 'signed_body=acd10e3607b478b845184ff7af8d796aec14425d5f00276567ea0876b1ff2630.%7B%22_csrftoken%22%3A%22rZj5Y3kci0OWbO8AMUi0mWwcBnUgnJDY%22%2C%22q%22%3A%22'.urlencode($mail).'%22%2C%22_uid%22%3A%226758469524%22%2C%22guid%22%3A%22a475d908-a663-4895-ac60-c0ab0853d6df%22%2C%22device_id%22%3A%22android-1a9898fad127fa2a%22%2C%22_uuid%22%3A%22a475d908-a663-4895-ac60-c0ab0853d6df%22%7D&ig_sig_key_version=4';
+$fields = 'signed_body=SIGNATURE.'.urlencode(json_encode(['q'=>$mail,'_uid'=>rand(1000000000,9999999999),'guid'=>$uuid,'device_id'=>'android-'.$uuid])).'&ig_sig_key_version=4';
 curl_setopt($search,CURLOPT_POSTFIELDS, $fields);
 $search = curl_exec($search);
 // echo $search;
@@ -80,11 +82,12 @@ curl_setopt($search, CURLOPT_TIMEOUT, 15);
 $h = explode("\n", 'Host: i.instagram.com
 Connection: keep-alive
 X-IG-Connection-Type: WIFI
-X-IG-Capabilities: 3Ro=
-Accept-Language: ar-AE
+X-IG-Capabilities: 3brTv10=
+x-ig-app-id: 567067343352427
+Accept-Language: en-US
 Cookie: '.$cookies.'
 User-Agent: '.$useragent.'
-Accept-Encoding: gzip, deflate, sdch');
+Accept-Encoding: gzip, deflate');
 curl_setopt($search, CURLOPT_HTTPHEADER, $h);
 $search = curl_exec($search);
 // echo $search;
@@ -511,27 +514,32 @@ class ig {
 	private $file;
 	public function __construct($settings){
 		$this->account = $settings['account'];
-		$this->account['useragent'] = 'Instagram 27.0.0.7.97 Android (23/6.0.1; 640dpi; 1440x2392; LGE/lge; RS988; h1; h1; en_US)';
+		// Updated to 2025 Instagram version
+		$this->account['useragent'] = 'Instagram 316.0.0.38.120 Android (30/11; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100; en_US; 541974943)';
 		$this->file = $settings['file'];
 		
 	}
 	public function login($user,$pass){
 		$uuid = $this->UUID();
 		$guid = $this->GUID();
+		// Updated signature key for 2025
 		return $this->request('accounts/login/',
 			0,
 			1,
 			[
-				'signed_body'=>'57afc5aa6cc94675a08329beaffaec7bad237df0198ed801280f459e80095abb.'.json_encode([
+				'signed_body'=>'SIGNATURE.'.json_encode([
 					'phone_id'=>$guid,
 					'username'=>$user,
-					'_uid'=>rand(1000000000,9999999999),
+					'enc_password'=>'#PWD_INSTAGRAM:0:'.time().':'.$pass,
 					'guid'=>$guid,
-					'_uuid'=>$guid,
-					'device_id'=>'android-'.$guid,
-					'password'=>$pass,
+					'device_id'=>'android-'.$uuid,
 					'login_attempt_count'=>'0',
-				])
+					'adid'=>$this->UUID(),
+					'google_tokens'=>'[]',
+					'country_codes'=>json_encode([['country_code'=>'1','source'=>'default']]),
+					'jazoest'=>'2'.rand(10000,99999),
+				]),
+				'ig_sig_key_version'=>'4'
 			],
 			1
 		);
@@ -747,6 +755,7 @@ class ig {
     private function request($path,$account = 0,$post = 0,$datas = array(),$returnHeaders = 0){
         $ch = curl_init(); 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_ENCODING, ''); // Enable automatic gzip/deflate decompression
         if($post == 1){
             curl_setopt($ch, CURLOPT_POST, 1);
         }
@@ -760,25 +769,29 @@ class ig {
         }
 	  if($account == 0){
 	  	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-		     'x-ig-capabilities: 3w==',
-		     'user-agent: Instagram 27.0.0.7.97 Android (23/6.0.1; 640dpi; 1440x2392; LGE/lge; RS988; h1; h1; en_US)',
+		     'x-ig-capabilities: 3brTv10=',
+		     'x-ig-app-id: 567067343352427',
+		     'user-agent: Instagram 316.0.0.38.120 Android (30/11; 420dpi; 1080x2400; samsung; SM-G991B; o1s; exynos2100; en_US; 541974943)',
 		     'host: i.instagram.com',
-		     'X-CSRFToken: missing',
-		     'X-Instagram-AJAX: 1',
-		     'Content-Type: application/x-www-form-urlencoded',
-		     'X-Requested-With: XMLHttpRequest',
+		     'accept-language: en-US',
+		     'accept-encoding: gzip, deflate',
+		     'X-IG-Connection-Type: WIFI',
+		     'X-IG-Capabilities: 3brTv10=',
+		     'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
 		     "Cookie: mid=XUzLlQABAAH63ME45I6TG-i46cOi",
 		     'Connection: keep-alive'
 		  ));
 	  } elseif($account == 1){
 	  	curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-	      'x-ig-capabilities: 3w==',
+	      'x-ig-capabilities: 3brTv10=',
+	      'x-ig-app-id: 567067343352427',
 	      'user-agent: '.$this->account['useragent'],
 	      'host: i.instagram.com',
-	      'X-CSRFToken: missing',
-	      'X-Instagram-AJAX: 1',
-	      'Content-Type: application/x-www-form-urlencoded',
-	      'X-Requested-With: XMLHttpRequest',
+	      'accept-language: en-US',
+	      'accept-encoding: gzip, deflate',
+	      'X-IG-Connection-Type: WIFI',
+	      'X-IG-Capabilities: 3brTv10=',
+	      'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
 	      "Cookie: ".$this->account['cookies'],
 	      'Connection: keep-alive'
 	  ));
@@ -786,11 +799,35 @@ class ig {
 	  if($returnHeaders == 1){
 		  curl_setopt($ch, CURLOPT_HEADER, 1);
 		  $res = curl_exec($ch);
-		  $res = explode("\r\n\r\n", $res);
+		  if(curl_errno($ch)){
+			  error_log("Instagram API Error: " . curl_error($ch));
+			  curl_close($ch);
+			  return ['error' => curl_error($ch)];
+		  }
+		  // Split headers and body
+		  $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+		  $headers = substr($res, 0, $header_size);
+		  $body = substr($res, $header_size);
+		  curl_close($ch);
+		  return [$headers, $body];
 	  } else {
 		  $res = curl_exec($ch);
-		  $res = json_decode($res);
+		  if(curl_errno($ch)){
+			  error_log("Instagram API Error: " . curl_error($ch));
+			  curl_close($ch);
+			  return json_decode(json_encode(['error' => curl_error($ch)]));
+		  }
+		  $decoded = json_decode($res);
+		  // Better error handling for Instagram API responses
+		  if(isset($decoded->status) && $decoded->status === 'fail'){
+			  error_log("Instagram API returned fail status: " . $res);
+		  }
+		  if(isset($decoded->message) && strpos($decoded->message, 'challenge_required') !== false){
+			  error_log("Instagram challenge required - account may need verification");
+		  }
+		  $res = $decoded;
 	  }
+	  curl_close($ch);
 	  return $res;
 	}
 }

@@ -26,12 +26,13 @@ for($i=0;$i<20;$i++){
 		curl_setopt($explore, CURLOPT_URL, "https://i.instagram.com/api/v1/discover/explore/?is_prefetch=false&max_id=$i&module=explore_popular&timezone_offset=10800&session_id=db7d7ac9-4605-4855-ad5e-d16edc561934 ");
 	  curl_setopt($explore, CURLOPT_RETURNTRANSFER, 1);
 	  curl_setopt($explore, CURLOPT_HTTPHEADER, array(
-	      'x-ig-capabilities: 3w==',
+	      'x-ig-capabilities: 3brTv10=',
+	      'x-ig-app-id: 567067343352427',
 	      'host: i.instagram.com',
-	      'X-CSRFToken: missing',
-	      'X-Instagram-AJAX: 1',
-	      'Content-Type: application/x-www-form-urlencoded',
-	      'X-Requested-With: XMLHttpRequest',
+	      'accept-language: en-US',
+	      'X-IG-Connection-Type: WIFI',
+	      'X-IG-Capabilities: 3brTv10=',
+	      'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
 	      'Cookie: '.$accounts[$file]['cookies'],
 				'User-Agent: '.$accounts[$file]['useragent'],
 	      'Connection: keep-alive'
@@ -64,12 +65,14 @@ foreach($posts as $post){
 	curl_setopt($comments, CURLOPT_URL, "https://i.instagram.com/api/v1/media/".$post."/comments/");
 	curl_setopt($comments, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($comments, CURLOPT_HTTPHEADER, array(
-	    'x-ig-capabilities: 3w==',
+	    'x-ig-capabilities: 3brTv10=',
+	    'x-ig-app-id: 567067343352427',
 	    'host: i.instagram.com',
-	    'X-CSRFToken: missing',
-	    'X-Instagram-AJAX: 1',
-	    'Content-Type: application/x-www-form-urlencoded',
-	    'X-Requested-With: XMLHttpRequest','Cookie: '.$accounts[$file]['cookies'],
+	    'accept-language: en-US',
+	    'X-IG-Connection-Type: WIFI',
+	    'X-IG-Capabilities: 3brTv10=',
+	    'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
+	    'Cookie: '.$accounts[$file]['cookies'],
 			'User-Agent: '.$accounts[$file]['useragent'],
 	    'Connection: keep-alive'
 	));
