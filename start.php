@@ -39,9 +39,16 @@ if(!file_exists($screen)){
     exit("Username file $screen not found. Collect usernames first.\n");
 }
 
-$cookies = $accounts[$screen]['cookies'] . $accounts[$screen]['sessionid'];
+$cookies = $accounts[$screen]['cookies'];
 $useragent = $accounts[$screen]['useragent'];
 $users = explode("\n", file_get_contents($screen));
+$users = array_filter(array_map('trim', $users)); // Remove empty lines
+
+// Debug
+echo "Account: $screen\n";
+echo "Total users to check: " . count($users) . "\n";
+echo "Cookies length: " . strlen($cookies) . "\n";
+
 $uu = explode(':', $screen) [0];
 $se = 100;
 $i = 0;
@@ -53,12 +60,12 @@ $true = 0;
 $false = 0;
 $edit = bot('sendMessage',[
     'chat_id'=>$id,
-    'text'=>"- *Status:*",
+    'text'=>"- *Status:*\nTotal users: " . count($users),
     'parse_mode'=>'markdown',
     'reply_markup'=>json_encode([
             'inline_keyboard'=>[
                 [['text'=>'Checked: '.$i,'callback_data'=>'fgf']],
-                [['text'=>'On User: '.$user,'callback_data'=>'fgdfg']],
+                [['text'=>'On User: Starting...','callback_data'=>'fgdfg']],
                 [['text'=>"Gmail: $gmail",'callback_data'=>'dfgfd'],['text'=>"Yahoo: $yahoo",'callback_data'=>'gdfgfd']],
                 [['text'=>'MailRu: '.$mailru,'callback_data'=>'fgd'],['text'=>'Hotmail: '.$hotmail,'callback_data'=>'ghj']],
                 [['text'=>'True: '.$true,'callback_data'=>'gj']],
@@ -69,8 +76,21 @@ $edit = bot('sendMessage',[
 $se = 100;
 $editAfter = 50;
 foreach ($users as $user) {
+    $user = trim($user);
+    if(empty($user)) continue; // Skip empty usernames
+    
+    echo "Checking user: $user\n";
+    
     $info = getInfo($user, $cookies, $useragent);
-    if ($info != false ) {
+    
+    echo "Info result: " . ($info ? "Found" : "False") . "\n";
+    if($info && isset($info['mail'])){
+        echo "Email found: " . $info['mail'] . "\n";
+    }
+    
+    $i++; // Increment counter for each user checked
+    
+    if ($info != false && isset($info['mail'])) {
         $mail = trim($info['mail']);
         $usern = $info['user'];
         $e = explode('@', $mail);
