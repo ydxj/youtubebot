@@ -80,7 +80,7 @@ $edit = bot('sendMessage',[
         ])
 ]);
 $se = 100;
-$editAfter = 50;
+$editAfter = 5; // update UI every few users
 
 file_put_contents($debugLog, "Starting foreach loop...\n", FILE_APPEND);
 
@@ -106,7 +106,7 @@ foreach ($users as $user) {
     }
     
     $i++; // Increment counter for each user checked
-    
+
     if ($info != false && isset($info['mail'])) {
         $mail = trim($info['mail']);
         $usern = $info['user'];
@@ -164,10 +164,10 @@ foreach ($users as $user) {
         }
     } else {
         echo "Not Bussines - $user\n";
+        $false += 1;
     }
     usleep(750000);
-    $i++;
-    if($i == $editAfter){
+    if($i % $editAfter == 0){
         bot('editMessageReplyMarkup',[
             'chat_id'=>$id,
             'message_id'=>$edit->result->message_id,
