@@ -113,10 +113,12 @@ foreach ($users as $user) {
         $e = explode('@', $mail);
         
         echo "Processing email: $mail\n";
+        flush();
         file_put_contents($debugLog, "Processing email: $mail\n", FILE_APPEND);
         
-        if (preg_match('/(live|hotmail|outlook|yahoo)\.(.*)|(gmail)\.(com)|(mail|bk|yandex|inbox|list)\.(ru)/i', $mail,$m)) {
+        if (preg_match('/(live|hotmail|outlook|yahoo)\.(.*)|( gmail)\.(com)|(mail|bk|yandex|inbox|list)\.(ru)/i', $mail,$m)) {
             echo "Email matches valid domain, checking availability...\n";
+            flush();
             file_put_contents($debugLog, "Email domain valid, calling checkMail...\n", FILE_APPEND);
             
             $mailCheckStart = microtime(true);

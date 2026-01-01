@@ -132,6 +132,9 @@ function checkRU($mail){
         return false;
     }
     
+    echo "[Mail.ru] Checking: $mail\n";
+    flush();
+    
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, 'https://auth.mail.ru/api/v1/pushauth/info?login=' . urlencode($mail) . '&_=' . time() . '000');
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -143,9 +146,11 @@ function checkRU($mail){
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
     curl_setopt($ch, CURLOPT_ENCODING, '');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     
     $res = curl_exec($ch);
     $err = curl_error($ch);
@@ -179,6 +184,9 @@ function checkYahoo($mail){
     // Use basic pattern matching as fallback
     $username = preg_replace('/@.*/', '', $mail);
     
+    echo "[Yahoo] Checking: $username\n";
+    flush();
+    
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, 'https://login.yahoo.com/account/module/create?validateField=yid');
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -192,9 +200,11 @@ function checkYahoo($mail){
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
     curl_setopt($ch, CURLOPT_ENCODING, '');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     
     $fields = 'acrumb=&sessionIndex=&yid='.$username;
     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
@@ -237,6 +247,9 @@ function checkGmail($mail){
     }
     $username = preg_replace('/@.*/', '', $mail);
     
+    echo "[Gmail] Checking: $username\n";
+    flush();
+    
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, 'https://accounts.google.com/_/signup/webusernameavailability?hl=en&_reqid='.rand(100000,999999).'&rt=j');
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -248,9 +261,11 @@ function checkGmail($mail){
     ]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
     curl_setopt($ch, CURLOPT_ENCODING, '');
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
     
     $fields = 'f.req=' . urlencode('["'.$username.'",1]') . '&';
     curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
@@ -259,8 +274,12 @@ function checkGmail($mail){
     $err = curl_error($ch);
     curl_close($ch);
     
+    echo "[Gmail] Request completed\n";
+    flush();
+    
     if($err){
         echo "Gmail check error: $err\n";
+        flush();
         return false; // On error, assume taken to avoid false positives
     }
     
@@ -290,6 +309,9 @@ function checkHotmail($url, $mail){
         }
         $uaid = $parts[1];
         
+        echo "[Hotmail] Checking: $mail\n";
+        flush();
+        
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -303,9 +325,11 @@ function checkHotmail($url, $mail){
         ]);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($ch, CURLOPT_ENCODING, '');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         
         $payload = json_encode([
             'username' => $mail,
