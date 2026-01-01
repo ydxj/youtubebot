@@ -5,10 +5,40 @@ $id = $config['id'];
 $token = $config['token'];
 $config['filter'] = $config['filter'] != null ? $config['filter'] : 1;
 $screen = file_get_contents('screen');
-exec('kill -9 ' . file_get_contents($screen . 'pid'));
+
+// Kill previous process (Windows compatible)
+if(file_exists($screen . 'pid')){
+    $oldPid = file_get_contents($screen . 'pid');
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        exec("taskkill /F /PID $oldPid 2>nul");
+    } else {
+        exec('kill -9 ' . $oldPid);
+    }
+}
 file_put_contents($screen . 'pid', getmypid());
 include 'index.php';
 $accounts = json_decode(file_get_contents('accounts.json') , 1);
+
+// Check if account exists
+if(!isset($accounts[$screen])){
+    bot('sendMessage',[
+        'chat_id'=>$id,
+        'text'=>"*Error:* Account not found in accounts.json",
+        'parse_mode'=>'markdown'
+    ]);
+    exit("Account $screen not found\n");
+}
+
+// Check if username file exists
+if(!file_exists($screen)){
+    bot('sendMessage',[
+        'chat_id'=>$id,
+        'text'=>"*Error:* No usernames to check. Please collect usernames first using the grabber menu.",
+        'parse_mode'=>'markdown'
+    ]);
+    exit("Username file $screen not found. Collect usernames first.\n");
+}
+
 $cookies = $accounts[$screen]['cookies'] . $accounts[$screen]['sessionid'];
 $useragent = $accounts[$screen]['useragent'];
 $users = explode("\n", file_get_contents($screen));

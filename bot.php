@@ -532,7 +532,12 @@ try {
                       ]
                   ])
                   ]);
-              exec('screen -dmS '.explode(':',$data[1])[0].' php start.php');
+              // Windows compatible background execution
+              if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                  pclose(popen("start /B php start.php", "r"));
+              } else {
+                  exec('screen -dmS '.explode(':',$data[1])[0].' php start.php');
+              }
               $bot->sendMessage([
                 'chat_id'=>$chatId,
                 'text'=>"*جار بدأ الفحص.*\n Account: `".explode(':',$data[1])[0].'`',
