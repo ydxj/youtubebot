@@ -6,6 +6,11 @@ include 'index.php';
 $accounts = json_decode(file_get_contents('accounts.json'),1);
 $id = $config['words'];
 $file = $config['for'];
+
+// Validate that an account is selected
+if(!isset($config['for']) || $config['for'] == 'حدد الحساب' || !isset($accounts[$file])){
+    die("Error: Please select an account first from the 'For Account' menu!\n");
+}
 $a = file_exists('a') ? file_get_contents('a') : 'ap';
 if($a == 'new'){
 	file_put_contents($file, '');

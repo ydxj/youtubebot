@@ -2,6 +2,12 @@
 $accounts = json_decode(file_get_contents('accounts.json'),1);
 $config = json_decode(file_get_contents('config.json'),1);
 $file = $config['for'];
+
+// Validate that an account is selected
+if(!isset($config['for']) || $config['for'] == 'حدد الحساب' || !isset($accounts[$file])){
+    die("Error: Please select an account first from the 'For Account' menu!\n");
+}
+
 $id = $config['id'];
 $words = explode(' ',$config['words']);
 $token = $config['token'];
