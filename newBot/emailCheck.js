@@ -1,5 +1,3 @@
-// Email validation utilities for Gmail, Yahoo, Hotmail, Mail.ru, etc.
-// Modern Node.js version of checkMail, checkGmail, checkYahoo, checkHotmail, checkRU
 const fetch = require('node-fetch');
 
 async function checkMail(email) {
