@@ -13,18 +13,31 @@ function status($for){
     
 }
 function checkMail($mail){
-        if(mb_substr($mail, -10) === '@gmail.com'){
-            return checkGmail($mail);
-        } elseif(preg_match('/(live|hotmail|outlook)\.(.*)/', $mail)){
-            return checkHotmail(newURL(),$mail);
-        } elseif(strpos($mail, 'yahoo')){
-            return checkYahoo($mail);
-        } elseif(preg_match('/(mail|bk|yandex|inbox|list)\.(ru)/i', $mail)){
-            return checkRU($mail);
-        } else {
-            return true;
-            
-        }
+    echo "[checkMail] Routing email: $mail\n";
+    flush();
+    
+    if(stripos($mail, 'gmail.com') !== false){
+        echo "[checkMail] -> Gmail detected\n";
+        flush();
+        return checkGmail($mail);
+    } elseif(preg_match('/(hotmail|outlook|live)\./i', $mail)){
+        echo "[checkMail] -> Hotmail detected\n";
+        flush();
+        $url = newURL();
+        return checkHotmail($url, $mail);
+    } elseif(stripos($mail, 'yahoo') !== false){
+        echo "[checkMail] -> Yahoo detected\n";
+        flush();
+        return checkYahoo($mail);
+    } elseif(preg_match('/(mail|bk|yandex|inbox|list)\.ru/i', $mail)){
+        echo "[checkMail] -> Mail.ru detected\n";
+        flush();
+        return checkRU($mail);
+    } else {
+        echo "[checkMail] -> Unknown domain, assuming available\n";
+        flush();
+        return true;
+    }
 }
 function bot($method,$datas=[]){
     global $token;

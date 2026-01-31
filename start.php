@@ -1,4 +1,5 @@
 <?php
+ob_implicit_flush(true);
 date_default_timezone_set('Africa/Casablanca');
 $config = json_decode(file_get_contents('config.json'),1);
 $id = $config['id'];
